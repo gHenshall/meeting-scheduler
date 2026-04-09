@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meeting Scheduler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ee;--surface:#fff;--border:#e2dfd8;--border-md:#c9c5bc;
+  --text:#1a1917;--muted:#7a776f;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#9b2335;--red-bg:#fde8ec;
+  --amber:#7a5c00;--amber-bg:#fff8d6;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
+.container{max-width:660px;margin:0 auto}
+
+/* header */
+header{margin-bottom:2.5rem}
+header h1{font-size:30px;font-weight:300;letter-spacing:-0.6px;margin-bottom:4px}
+header p{font-size:14px;color:var(--muted)}
+
+/* notice */
+.notice{border-radius:10px;padding:1rem 1.2rem;font-size:13px;line-height:1.7;margin-bottom:1.5rem;display:none}
+.notice.warn{background:var(--amber-bg);border:1px solid #e8d070;color:var(--amber)}
+.notice code{font-family:var(--mono);background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:4px;font-size:12px}
+.notice a{color:inherit;font-weight:500}
+.notice ol{margin:8px 0 0 1.2rem}
+.notice li{margin-bottom:4px}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden}
+.card-head{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h2{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.card-body{padding:1.2rem}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.2rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-val{font-size:28px;font-weight:300;letter-spacing:-1px}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:1px}
+
+/* form */
+.form-row{display:grid;gap:10px;margin-bottom:10px}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-4{grid-template-columns:1.6fr 1fr 1fr auto}
+.field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+.field input,.field select{
+  width:100%;height:38px;padding:0 10px;
+  border:1px solid var(--border);border-radius:8px;
+  font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);
+  outline:none;transition:border-color .12s;
+}
+.field input:focus,.field select:focus{border-color:var(--border-md);background:#fff}
+.err{font-size:13px;color:var(--red);margin-top:6px;display:none}
+
+/* link box */
+.link-box{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:1.2rem}
+.link-box input{flex:1;border:none;background:transparent;font-family:var(--mono);font-size:12px;color:var(--muted);outline:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:38px;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text);transition:background .12s,transform .1s;white-space:nowrap}
+.btn:hover{background:var(--bg)}
+.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-dark:hover{background:#2e2c2a;background:var(--text)}
+.btn-sm{height:30px;padding:0 12px;font-size:12px}
+.btn-danger{color:var(--red);border-color:#f0b8c0}
+.btn-danger:hover{background:var(--red-bg)}
+
+/* slot list (admin) */
+.slot-row{display:flex;align-items:center;gap:12px;padding:12px 1.2rem;border-bottom:1px solid var(--border)}
+.slot-row:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-open{background:var(--green)}
+.dot-taken{background:var(--red)}
+.slot-info{flex:1;min-width:0}
+.slot-name{font-size:14px;font-weight:500}
+.slot-time{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
+.slot-who{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;flex-shrink:0}
+.badge-open{background:var(--green-bg);color:var(--green)}
+.badge-taken{background:var(--red-bg);color:var(--red)}
+.empty{text-align:center;padding:2.5rem 1rem;font-size:14px;color:var(--muted)}
+
+/* booking list */
+.book-row{display:flex;align-items:center;gap:14px;padding:16px 1.2rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.book-row:last-child{border-bottom:none}
+.book-row:hover:not(.taken){background:#faf9f6}
+.book-row.taken{opacity:.45;cursor:not-allowed}
+.book-row .slot-info{flex:1}
+
+/* modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:50;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;width:100%;max-width:400px}
+.modal h2{font-size:18px;font-weight:400;margin-bottom:6px}
+.modal .slot-desc{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:1.5rem;line-height:1.5}
+.modal .field{margin-bottom:12px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.2rem}
+
+/* success */
+.success{text-align:center;padding:3rem 1rem}
+.success-mark{font-size:44px;margin-bottom:1rem;line-height:1}
+.success h2{font-size:22px;font-weight:300;margin-bottom:8px}
+.success p{font-size:14px;color:var(--muted)}
+
+/* spinner */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--text);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;gap:10px;padding:1.5rem 1.2rem;font-size:14px;color:var(--muted)}
+
+/* tabs */
+.tabs{display:flex;gap:1.5rem;margin-bottom:2rem}
+.tab-btn{font-family:var(--sans);font-size:15px;font-weight:400;color:var(--muted);background:none;border:none;cursor:pointer;padding:0 0 6px;border-bottom:2px solid transparent;transition:color .12s,border-color .12s}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+
+.view{display:none}.view.active{display:block}
+
+@media(max-width:480px){
+  .form-row.cols-4{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════
+       CONFIG  — edit these two lines then deploy
+  ═══════════════════════════════════════════ -->
+  <script>
+    // 1. Go to https://jsonbin.io  →  sign up free
+    // 2. Create a new Bin with content: {"slots":[]}
+    // 3. Copy the Bin ID and your API key below
+    const JSONBIN_API_KEY = '$2a$10$UA5AQBzEzszlYMM3UysXau7eGw0jsrFStSthg1sXf42CJFLyz0Mpq';
+    const JSONBIN_BIN_ID  = '69d7a5daaaba882197ddeacc';
+  </script>
+  <!-- ════════════════════════════════════════ -->
+
+  <div id="setup-notice" class="notice warn">
+    <strong>Setup required</strong> — open <code>index.html</code> and fill in your JSONBin details at the top of the file:
+    <ol>
+      <li>Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> and create a free account</li>
+      <li>Click <em>Create a Bin</em>, paste in <code>{"slots":[]}</code>, save it</li>
+      <li>Copy your <strong>Bin ID</strong> and <strong>API Key</strong> (Master Key) into the two variables at the top of <code>index.html</code></li>
+    </ol>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="view-admin" class="view active">
+    <header>
+      <h1>Meeting scheduler</h1>
+      <p>Add your availability, then share the booking link with whoever needs to book time with you.</p>
+    </header>
+
+    <div id="link-section" style="display:none">
+      <div class="card-head" style="background:var(--surface);border:1px solid var(--border);border-radius:10px 10px 0 0;border-bottom:none;padding:.8rem 1.2rem">
+        <h2 style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Booking link — share this</h2>
+      </div>
+      <div class="link-box" style="border-radius:0 0 10px 10px;margin-bottom:1.2rem;border-top:none">
+        <input id="booking-url" readonly />
+        <button class="btn btn-sm" onclick="copyLink()">Copy</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="s-total">—</div><div class="stat-lbl">Slots</div></div>
+      <div class="stat"><div class="stat-val" id="s-open">—</div><div class="stat-lbl">Open</div></div>
+      <div class="stat"><div class="stat-val" id="s-booked">—</div><div class="stat-lbl">Booked</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Add a time slot</h2></div>
+      <div class="card-body">
+        <div class="form-row cols-4">
+          <div class="field">
+            <label>Label</label>
+            <input id="f-label" type="text" placeholder="e.g. 30-min intro call" />
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input id="f-date" type="date" />
+          </div>
+          <div class="field">
+            <label>Start</label>
+            <input id="f-start" type="time" />
+          </div>
+          <div class="field">
+            <label>End</label>
+            <input id="f-end" type="time" />
+          </div>
+        </div>
+        <div id="add-err" class="err"></div>
+        <button class="btn btn-dark" onclick="addSlot()" id="add-btn">+ Add slot</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Your slots</h2></div>
+      <div id="admin-list"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- BOOKING VIEW -->
+  <div id="view-booking" class="view">
+    <header>
+      <h1 id="book-title">Book a meeting</h1>
+      <p>Pick a time that works for you. Slots are 1-to-1 — once booked they disappear for others.</p>
+    </header>
+    <div id="book-wrap">
+      <div class="card">
+        <div id="book-list"><div class="loading"><span class="spinner"></span> Loading available slots…</div></div>
+      </div>
+    </div>
+    <div id="book-success" style="display:none">
+      <div class="success">
+        <div class="success-mark">✓</div>
+        <h2>You're booked!</h2>
+        <p id="success-detail"></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h2>Confirm booking</h2>
+    <div class="slot-desc" id="modal-desc"></div>
+    <div class="field">
+      <label>Your name</label>
+      <input id="m-name" type="text" placeholder="Jane Smith" />
+    </div>
+    <div class="field">
+      <label>Email <span style="font-weight:300;text-transform:none">(optional)</span></label>
+      <input id="m-email" type="email" placeholder="jane@example.com" />
+    </div>
+    <div id="modal-err" class="err"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-dark" id="confirm-btn" onclick="confirmBooking()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── API helpers ──────────────────────────────────────────
+const API = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'X-Master-Key': JSONBIN_API_KEY,
+  'X-Bin-Versioning': 'false'
+};
+
+async function getData() {
+  const r = await fetch(API + '/latest', { headers: HEADERS });
+  if (!r.ok) throw new Error('fetch failed');
+  const j = await r.json();
+  return j.record;
+}
+
+async function putData(data) {
+  const r = await fetch(API, {
+    method: 'PUT',
+    headers: HEADERS,
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('save failed');
+  return r.json();
+}
+
+// ── State ────────────────────────────────────────────────
+let slots = [];
+let pendingId = null;
+const configured = JSONBIN_API_KEY !== 'YOUR_API_KEY_HERE' && JSONBIN_BIN_ID !== 'YOUR_BIN_ID_HERE';
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function fmtDate(d) {
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
+function fmtSlot(s) { return fmtDate(s.date) + '  ·  ' + s.start + ' – ' + s.end; }
+
+// ── Admin rendering ──────────────────────────────────────
+function renderAdmin() {
+  const total = slots.length;
+  const booked = slots.filter(s => s.booked).length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-open').textContent = total - booked;
+  document.getElementById('s-booked').textContent = booked;
+
+  const ls = document.getElementById('link-section');
+  if (total > 0) {
+    ls.style.display = 'block';
+    document.getElementById('booking-url').value = window.location.href.split('?')[0] + '?book=1';
+  } else {
+    ls.style.display = 'none';
+  }
+
+  const el = document.getElementById('admin-list');
+  if (!slots.length) {
+    el.innerHTML = '<div class="empty">No slots yet — add one above.</div>';
+    return;
+  }
+  const sorted = [...slots].sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
+  el.innerHTML = sorted.map(s => `
+    <div class="slot-row">
+      <div class="dot ${s.booked ? 'dot-taken' : 'dot-open'}"></div>
+      <div class="slot-info">
+        <div class="slot-name">${esc(s.label)}</div>
+        <div class="slot-time">${fmtSlot(s)}</div>
+        ${s.booked ? `<div class="slot-who">Booked by ${esc(s.bookedBy)}${s.bookedEmail ? ' · ' + esc(s.bookedEmail) : ''}</div>` : ''}
+      </div>
+      <span class="badge ${s.booked ? 'badge-taken' : 'badge-open'}">${s.booked ? 'Booked' : 'Open'}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteSlot('${s.id}')">Remove</button>
+    </div>
+  `).join('');
+}
+
+// ── Add / delete ─────────────────────────────────────────
+async function addSlot() {
+  const label = document.getElementById('f-label').value.trim();
+  const date  = document.getElementById('f-date').value;
+  const start = document.getElementById('f-start').value;
+  const end   = document.getElementById('f-end').value;
+  const errEl = document.getElementById('add-err');
+  errEl.style.display = 'none';
+
+  if (!date || !start || !end) { showErr(errEl, 'Please fill in date, start and end time.'); return; }
+  if (start >= end)             { showErr(errEl, 'End time must be after start time.'); return; }
+
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  try {
+    const fresh = await getData();
+    fresh.slots.push({ id: genId(), label: label || 'Meeting', date, start, end, booked: false, bookedBy: '', bookedEmail: '' });
+    await putData(fresh);
+    slots = fresh.slots;
+    renderAdmin();
+    document.getElementById('f-label').value = '';
+    document.getElementById('f-date').value = '';
+    document.getElementById('f-start').value = '';
+    document.getElementById('f-end').value = '';
+  } catch(e) {
+    showErr(errEl, 'Could not save — check your JSONBin config.');
+  }
+  btn.disabled = false; btn.innerHTML = '+ Add slot';
+}
+
+async function deleteSlot(id) {
+  const fresh = await getData();
+  fresh.slots = fresh.slots.filter(s => s.id !== id);
+  await putData(fresh);
+  slots = fresh.slots;
+  renderAdmin();
+}
+
+// ── Booking rendering ────────────────────────────────────
+function renderBooking() {
+  const el = document.getElementById('book-list');
+  const open = slots.filter(s => !s.booked).sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
+  const taken = slots.filter(s => s.booked).sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
+  const all = [...open, ...taken];
+
+  if (!all.length) {
+    el.innerHTML = '<div class="empty">No slots available right now.</div>';
+    return;
+  }
+  el.innerHTML = all.map(s => `
+    <div class="book-row ${s.booked ? 'taken' : ''}" onclick="${s.booked ? '' : "openModal('" + s.id + "')"}">
+      <div class="dot ${s.booked ? 'dot-taken' : 'dot-open'}"></div>
+      <div class="slot-info">
+        <div class="slot-name">${esc(s.label)}</div>
+        <div class="slot-time">${fmtSlot(s)}</div>
+      </div>
+      <span class="badge ${s.booked ? 'badge-taken' : 'badge-open'}">${s.booked ? 'Taken' : 'Available'}</span>
+    </div>
+  `).join('');
+}
+
+// ── Modal ────────────────────────────────────────────────
+function openModal(id) {
+  pendingId = id;
+  const s = slots.find(x => x.id === id);
+  document.getElementById('modal-desc').textContent = s.label + '\n' + fmtSlot(s);
+  document.getElementById('m-name').value = '';
+  document.getElementById('m-email').value = '';
+  document.getElementById('modal-err').style.display = 'none';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); pendingId = null; }
+
+async function confirmBooking() {
+  const name  = document.getElementById('m-name').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const errEl = document.getElementById('modal-err');
+  errEl.style.display = 'none';
+  if (!name) { showErr(errEl, 'Please enter your name.'); return; }
+
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const fresh = await getData();
+    const s = fresh.slots.find(x => x.id === pendingId);
+    if (!s || s.booked) {
+      showErr(errEl, 'This slot was just taken — please choose another.');
+      slots = fresh.slots; renderBooking(); btn.disabled = false; btn.innerHTML = 'Confirm'; return;
+    }
+    s.booked = true; s.bookedBy = name; s.bookedEmail = email;
+    await putData(fresh);
+    slots = fresh.slots;
+    closeModal();
+    document.getElementById('book-wrap').style.display = 'none';
+    document.getElementById('book-success').style.display = 'block';
+    document.getElementById('success-detail').textContent = s.label + ' · ' + fmtSlot(s);
+  } catch(e) {
+    showErr(errEl, 'Something went wrong — please try again.');
+  }
+  btn.disabled = false; btn.innerHTML = 'Confirm';
+}
+
+// ── Helpers ──────────────────────────────────────────────
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+function esc(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function copyLink() {
+  const url = document.getElementById('booking-url').value;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('#link-section .btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1600);
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────
+async function init() {
+  const isBooking = new URLSearchParams(window.location.search).has('book');
+
+  if (!configured) {
+    document.getElementById('setup-notice').style.display = 'block';
+    document.getElementById('admin-list').innerHTML = '<div class="empty">Configure JSONBin above to get started.</div>';
+    document.getElementById('s-total').textContent = document.getElementById('s-open').textContent = document.getElementById('s-booked').textContent = '0';
+    return;
+  }
+
+  try {
+    const data = await getData();
+    slots = data.slots || [];
+  } catch(e) {
+    document.getElementById('admin-list').innerHTML = '<div class="empty" style="color:var(--red)">Could not load data — check your JSONBin config.</div>';
+    return;
+  }
+
+  if (isBooking) {
+    document.getElementById('view-admin').classList.remove('active');
+    document.getElementById('view-booking').classList.add('active');
+    renderBooking();
+  } else {
+    renderAdmin();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
