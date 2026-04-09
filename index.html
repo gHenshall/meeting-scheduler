@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Meeting Scheduler</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -14,20 +14,19 @@
   --green:#2d6a4f;--green-bg:#d8f3dc;
   --red:#9b2335;--red-bg:#fde8ec;
   --amber:#7a5c00;--amber-bg:#fff8d6;
+  --blue:#1a4f8a;--blue-bg:#e8f0fb;
   --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
-.container{max-width:660px;margin:0 auto}
-
-/* header */
-header{margin-bottom:2.5rem}
-header h1{font-size:30px;font-weight:300;letter-spacing:-0.6px;margin-bottom:4px}
+.container{max-width:680px;margin:0 auto}
+header{margin-bottom:2rem}
+header h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin-bottom:4px}
 header p{font-size:14px;color:var(--muted)}
 
 /* notice */
 .notice{border-radius:10px;padding:1rem 1.2rem;font-size:13px;line-height:1.7;margin-bottom:1.5rem;display:none}
 .notice.warn{background:var(--amber-bg);border:1px solid #e8d070;color:var(--amber)}
-.notice code{font-family:var(--mono);background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:4px;font-size:12px}
+.notice code{font-family:var(--mono);background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px;font-size:12px}
 .notice a{color:inherit;font-weight:500}
 .notice ol{margin:8px 0 0 1.2rem}
 .notice li{margin-bottom:4px}
@@ -46,17 +45,10 @@ header p{font-size:14px;color:var(--muted)}
 
 /* form */
 .form-row{display:grid;gap:10px;margin-bottom:10px}
-.form-row.cols-2{grid-template-columns:1fr 1fr}
-.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
 .form-row.cols-4{grid-template-columns:1.6fr 1fr 1fr auto}
 .field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
-.field input,.field select{
-  width:100%;height:38px;padding:0 10px;
-  border:1px solid var(--border);border-radius:8px;
-  font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);
-  outline:none;transition:border-color .12s;
-}
-.field input:focus,.field select:focus{border-color:var(--border-md);background:#fff}
+.field input,.field select{width:100%;height:38px;padding:0 10px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .12s}
+.field input:focus{border-color:var(--border-md);background:#fff}
 .err{font-size:13px;color:var(--red);margin-top:6px;display:none}
 
 /* link box */
@@ -68,12 +60,19 @@ header p{font-size:14px;color:var(--muted)}
 .btn:hover{background:var(--bg)}
 .btn:active{transform:scale(.97)}
 .btn-dark{background:var(--text);color:#fff;border-color:var(--text)}
-.btn-dark:hover{background:#2e2c2a;background:var(--text)}
+.btn-dark:hover{opacity:.88;background:var(--text)}
 .btn-sm{height:30px;padding:0 12px;font-size:12px}
 .btn-danger{color:var(--red);border-color:#f0b8c0}
 .btn-danger:hover{background:var(--red-bg)}
+.btn-ghost{border-color:transparent;padding:0 8px}
+.btn-ghost:hover{background:var(--bg);border-color:var(--border)}
 
-/* slot list (admin) */
+/* tabs */
+.tabs{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.tab-btn{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;padding:8px 16px;margin-bottom:-1px;transition:color .12s,border-color .12s}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+
+/* slot list */
 .slot-row{display:flex;align-items:center;gap:12px;padding:12px 1.2rem;border-bottom:1px solid var(--border)}
 .slot-row:last-child{border-bottom:none}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -95,6 +94,46 @@ header p{font-size:14px;color:var(--muted)}
 .book-row.taken{opacity:.45;cursor:not-allowed}
 .book-row .slot-info{flex:1}
 
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cal-month{font-size:16px;font-weight:500;letter-spacing:-.2px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:center;padding:6px 0}
+.cal-day{
+  aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  font-size:13px;cursor:default;position:relative;
+  border:1px solid transparent;transition:border-color .12s,background .12s;
+  padding:4px 2px;
+}
+.cal-day.other-month{color:var(--muted);opacity:.4}
+.cal-day.today{background:var(--bg);border-color:var(--border-md)}
+.cal-day.has-slots{cursor:pointer}
+.cal-day.has-slots:hover{background:var(--bg);border-color:var(--border-md)}
+.cal-day.selected{background:var(--text);color:#fff;border-color:var(--text)}
+.cal-day.selected .cal-pips span{background:rgba(255,255,255,.6)}
+.cal-pips{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;min-height:8px}
+.cal-pips span{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.cal-pips span.pip-taken{background:var(--red)}
+
+/* day detail panel */
+.day-detail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
+.day-detail.open{display:block}
+.day-detail-title{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+
+/* bulk add */
+.bulk-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:var(--sans);padding:0;margin-top:10px}
+.bulk-toggle:hover{color:var(--text)}
+.chevron{display:inline-block;transition:transform .2s;font-style:normal;font-size:10px}
+.bulk-toggle.open .chevron{transform:rotate(90deg)}
+.bulk-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.bulk-panel.open{display:block}
+.bulk-panel textarea{width:100%;height:120px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);outline:none;resize:vertical;line-height:1.6;transition:border-color .12s}
+.bulk-panel textarea:focus{border-color:var(--border-md);background:#fff}
+.bulk-hint{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.bulk-hint code{font-family:var(--mono);background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px}
+.bulk-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
+
 /* modal */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:50;align-items:center;justify-content:center;padding:1rem}
 .overlay.open{display:flex}
@@ -115,75 +154,46 @@ header p{font-size:14px;color:var(--muted)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading{display:flex;align-items:center;gap:10px;padding:1.5rem 1.2rem;font-size:14px;color:var(--muted)}
 
-/* tabs */
-.tabs{display:flex;gap:1.5rem;margin-bottom:2rem}
-.tab-btn{font-family:var(--sans);font-size:15px;font-weight:400;color:var(--muted);background:none;border:none;cursor:pointer;padding:0 0 6px;border-bottom:2px solid transparent;transition:color .12s,border-color .12s}
-.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
-
 .view{display:none}.view.active{display:block}
 
-/* bulk add */
-.bulk-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:var(--sans);padding:0;margin-top:10px}
-.bulk-toggle:hover{color:var(--text)}
-.bulk-toggle .chevron{display:inline-block;transition:transform .2s;font-style:normal;font-size:11px}
-.bulk-toggle.open .chevron{transform:rotate(90deg)}
-.bulk-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
-.bulk-panel.open{display:block}
-.bulk-panel textarea{
-  width:100%;height:130px;padding:10px 12px;
-  border:1px solid var(--border);border-radius:8px;
-  font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);
-  outline:none;resize:vertical;line-height:1.6;
-  transition:border-color .12s;
-}
-.bulk-panel textarea:focus{border-color:var(--border-md);background:#fff}
-.bulk-hint{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5}
-.bulk-hint code{font-family:var(--mono);background:rgba(0,0,0,0.06);padding:1px 4px;border-radius:3px}
-.bulk-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
-
-@media(max-width:480px){
+@media(max-width:520px){
   .form-row.cols-4{grid-template-columns:1fr 1fr}
   .stats{grid-template-columns:repeat(3,1fr)}
+  .cal-day{font-size:11px}
 }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ═══════════════════════════════════════════
-       CONFIG  — edit these two lines then deploy
-  ═══════════════════════════════════════════ -->
+  <!-- CONFIG -->
   <script>
-    // 1. Go to https://jsonbin.io  →  sign up free
-    // 2. Create a new Bin with content: {"slots":[]}
-    // 3. Copy the Bin ID and your API key below
     const JSONBIN_API_KEY = '$2a$10$UA5AQBzEzszlYMM3UysXau7eGw0jsrFStSthg1sXf42CJFLyz0Mpq';
     const JSONBIN_BIN_ID  = '69d7a5daaaba882197ddeacc';
   </script>
-  <!-- ════════════════════════════════════════ -->
 
   <div id="setup-notice" class="notice warn">
-    <strong>Setup required</strong> — open <code>index.html</code> and fill in your JSONBin details at the top of the file:
+    <strong>Setup required</strong> — open <code>index.html</code> and fill in your JSONBin details:
     <ol>
       <li>Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> and create a free account</li>
       <li>Click <em>Create a Bin</em>, paste in <code>{"slots":[]}</code>, save it</li>
-      <li>Copy your <strong>Bin ID</strong> and <strong>API Key</strong> (Master Key) into the two variables at the top of <code>index.html</code></li>
+      <li>Copy your <strong>Bin ID</strong> and <strong>Master Key</strong> into the two variables at the top of the file</li>
     </ol>
   </div>
 
-  <!-- ADMIN VIEW -->
+  <!-- ══ ADMIN VIEW ══ -->
   <div id="view-admin" class="view active">
     <header>
       <h1>Meeting scheduler</h1>
-      <p>Add your availability, then share the booking link with whoever needs to book time with you.</p>
+      <p>Add your availability, then share the booking link.</p>
     </header>
 
     <div id="link-section" style="display:none">
-      <div class="card-head" style="background:var(--surface);border:1px solid var(--border);border-radius:10px 10px 0 0;border-bottom:none;padding:.8rem 1.2rem">
-        <h2 style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Booking link — share this</h2>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px 10px 0 0;border-bottom:none;padding:.8rem 1.2rem">
+        <span style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Booking link — share this</span>
       </div>
-      <div class="link-box" style="border-radius:0 0 10px 10px;margin-bottom:1.2rem;border-top:none">
-        <input id="booking-url" readonly />
+      <div class="link-box" style="border-radius:0 0 10px 10px;border-top:none;margin-bottom:1.2rem">
+        <input id="booking-url" readonly/>
         <button class="btn btn-sm" onclick="copyLink()">Copy</button>
       </div>
     </div>
@@ -198,32 +208,19 @@ header p{font-size:14px;color:var(--muted)}
       <div class="card-head"><h2>Add a time slot</h2></div>
       <div class="card-body">
         <div class="form-row cols-4">
-          <div class="field">
-            <label>Label</label>
-            <input id="f-label" type="text" placeholder="e.g. 30-min intro call" />
-          </div>
-          <div class="field">
-            <label>Date</label>
-            <input id="f-date" type="date" />
-          </div>
-          <div class="field">
-            <label>Start</label>
-            <input id="f-start" type="time" />
-          </div>
-          <div class="field">
-            <label>End</label>
-            <input id="f-end" type="time" />
-          </div>
+          <div class="field"><label>Label</label><input id="f-label" type="text" placeholder="e.g. 30-min intro"/></div>
+          <div class="field"><label>Date</label><input id="f-date" type="date"/></div>
+          <div class="field"><label>Start</label><input id="f-start" type="time"/></div>
+          <div class="field"><label>End</label><input id="f-end" type="time"/></div>
         </div>
         <div id="add-err" class="err"></div>
         <button class="btn btn-dark" onclick="addSlot()" id="add-btn">+ Add slot</button>
-
         <button class="bulk-toggle" id="bulk-toggle" onclick="toggleBulk()">
           <i class="chevron">▶</i> Bulk add
         </button>
         <div class="bulk-panel" id="bulk-panel">
-          <p class="bulk-hint">One slot per line: <code>Label, YYYY-MM-DD, HH:MM, HH:MM</code><br>Label is optional — leave it out and it defaults to "Meeting".</p>
-          <textarea id="bulk-input" placeholder="Product chat, 2026-04-15, 09:00, 09:30&#10;Product chat, 2026-04-15, 10:00, 10:30&#10;2026-04-16, 14:00, 14:30"></textarea>
+          <p class="bulk-hint">One slot per line: <code>Label, YYYY-MM-DD, HH:MM, HH:MM</code> (label optional)</p>
+          <textarea id="bulk-input" placeholder="Product chat, 2026-04-15, 09:00, 09:30&#10;2026-04-16, 14:00, 14:30"></textarea>
           <div id="bulk-err" class="err"></div>
           <div class="bulk-actions">
             <button class="btn btn-dark" onclick="addBulk()" id="bulk-btn">+ Add all</button>
@@ -233,23 +230,78 @@ header p{font-size:14px;color:var(--muted)}
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-head"><h2>Your slots</h2></div>
-      <div id="admin-list"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+    <!-- admin tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchAdminTab('list',this)">List</button>
+      <button class="tab-btn" onclick="switchAdminTab('cal',this)">Calendar</button>
+    </div>
+
+    <!-- list tab -->
+    <div id="admin-tab-list">
+      <div class="card">
+        <div id="admin-list"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- calendar tab -->
+    <div id="admin-tab-cal" style="display:none">
+      <div class="card">
+        <div class="card-body">
+          <div class="cal-nav">
+            <button class="btn btn-ghost btn-sm" onclick="calMove(-1)">← Prev</button>
+            <span class="cal-month" id="admin-cal-month"></span>
+            <button class="btn btn-ghost btn-sm" onclick="calMove(1)">Next →</button>
+          </div>
+          <div class="cal-grid" id="admin-cal-grid"></div>
+          <div class="day-detail" id="admin-day-detail">
+            <div class="day-detail-title" id="admin-day-title"></div>
+            <div id="admin-day-slots"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- BOOKING VIEW -->
+  <!-- ══ BOOKING VIEW ══ -->
   <div id="view-booking" class="view">
     <header>
-      <h1 id="book-title">Book a meeting</h1>
-      <p>Pick a time that works for you. Slots are 1-to-1 — once booked they disappear for others.</p>
+      <h1>Book a meeting</h1>
+      <p>Pick a time that works for you. Slots are 1-to-1 — once booked they're gone.</p>
     </header>
+
     <div id="book-wrap">
-      <div class="card">
-        <div id="book-list"><div class="loading"><span class="spinner"></span> Loading available slots…</div></div>
+      <!-- booking tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchBookTab('list',this)">List</button>
+        <button class="tab-btn" onclick="switchBookTab('cal',this)">Calendar</button>
+      </div>
+
+      <!-- list tab -->
+      <div id="book-tab-list">
+        <div class="card">
+          <div id="book-list"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+        </div>
+      </div>
+
+      <!-- calendar tab -->
+      <div id="book-tab-cal" style="display:none">
+        <div class="card">
+          <div class="card-body">
+            <div class="cal-nav">
+              <button class="btn btn-ghost btn-sm" onclick="bookCalMove(-1)">← Prev</button>
+              <span class="cal-month" id="book-cal-month"></span>
+              <button class="btn btn-ghost btn-sm" onclick="bookCalMove(1)">Next →</button>
+            </div>
+            <div class="cal-grid" id="book-cal-grid"></div>
+            <div class="day-detail" id="book-day-detail">
+              <div class="day-detail-title" id="book-day-title"></div>
+              <div id="book-day-slots"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
     <div id="book-success" style="display:none">
       <div class="success">
         <div class="success-mark">✓</div>
@@ -266,13 +318,10 @@ header p{font-size:14px;color:var(--muted)}
   <div class="modal">
     <h2>Confirm booking</h2>
     <div class="slot-desc" id="modal-desc"></div>
-    <div class="field">
-      <label>Your name</label>
-      <input id="m-name" type="text" placeholder="Jane Smith" />
-    </div>
+    <div class="field"><label>Your name</label><input id="m-name" type="text" placeholder="Jane Smith"/></div>
     <div class="field">
       <label>Email <span style="font-weight:300;text-transform:none">(optional)</span></label>
-      <input id="m-email" type="email" placeholder="jane@example.com" />
+      <input id="m-email" type="email" placeholder="jane@example.com"/>
     </div>
     <div id="modal-err" class="err"></div>
     <div class="modal-actions">
@@ -283,81 +332,254 @@ header p{font-size:14px;color:var(--muted)}
 </div>
 
 <script>
-// ── API helpers ──────────────────────────────────────────
+// ── API ──────────────────────────────────────────────────
 const API = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'X-Master-Key': JSONBIN_API_KEY,
-  'X-Bin-Versioning': 'false'
-};
+const HDRS = {'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY,'X-Bin-Versioning':'false'};
+const configured = JSONBIN_API_KEY !== 'YOUR_API_KEY_HERE' && JSONBIN_BIN_ID !== 'YOUR_BIN_ID_HERE';
 
 async function getData() {
-  const r = await fetch(API + '/latest', { headers: HEADERS });
+  const r = await fetch(API + '/latest', {headers:HDRS});
   if (!r.ok) throw new Error('fetch failed');
-  const j = await r.json();
-  return j.record;
+  return (await r.json()).record;
 }
-
-async function putData(data) {
-  const r = await fetch(API, {
-    method: 'PUT',
-    headers: HEADERS,
-    body: JSON.stringify(data)
-  });
+async function putData(d) {
+  const r = await fetch(API, {method:'PUT',headers:HDRS,body:JSON.stringify(d)});
   if (!r.ok) throw new Error('save failed');
-  return r.json();
 }
 
 // ── State ────────────────────────────────────────────────
 let slots = [];
 let pendingId = null;
-const configured = JSONBIN_API_KEY !== 'YOUR_API_KEY_HERE' && JSONBIN_BIN_ID !== 'YOUR_BIN_ID_HERE';
+let adminCalDate = new Date();
+let bookCalDate  = new Date();
+adminCalDate.setDate(1);
+bookCalDate.setDate(1);
 
-function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function fmtDate(d) {
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 }
 function fmtSlot(s) { return fmtDate(s.date) + '  ·  ' + s.start + ' – ' + s.end; }
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-// ── Admin rendering ──────────────────────────────────────
-function renderAdmin() {
-  const total = slots.length;
-  const booked = slots.filter(s => s.booked).length;
-  document.getElementById('s-total').textContent = total;
-  document.getElementById('s-open').textContent = total - booked;
-  document.getElementById('s-booked').textContent = booked;
+// ── Tab switching ────────────────────────────────────────
+function switchAdminTab(name, btn) {
+  document.querySelectorAll('.tabs')[0].querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('admin-tab-list').style.display = name==='list' ? 'block' : 'none';
+  document.getElementById('admin-tab-cal').style.display  = name==='cal'  ? 'block' : 'none';
+  if (name==='cal') renderAdminCal();
+}
+function switchBookTab(name, btn) {
+  document.querySelectorAll('.tabs')[1].querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('book-tab-list').style.display = name==='list' ? 'block' : 'none';
+  document.getElementById('book-tab-cal').style.display  = name==='cal'  ? 'block' : 'none';
+  if (name==='cal') renderBookCal();
+}
 
-  const ls = document.getElementById('link-section');
-  if (total > 0) {
-    ls.style.display = 'block';
-    document.getElementById('booking-url').value = window.location.href.split('?')[0] + '?book=1';
-  } else {
-    ls.style.display = 'none';
+// ── Calendar rendering (shared logic) ───────────────────
+function buildCal(containerEl, monthEl, date, slotsByDay, onDayClick, selectedDay) {
+  const y = date.getFullYear(), m = date.getMonth();
+  monthEl.textContent = date.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+  const firstDow = new Date(y,m,1).getDay(); // 0=Sun
+  const startOffset = (firstDow + 6) % 7;   // Mon-based
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const today = new Date().toISOString().slice(0,10);
+
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+
+  // leading blanks
+  for (let i=0;i<startOffset;i++) html += `<div class="cal-day other-month"></div>`;
+
+  for (let d=1; d<=daysInMonth; d++) {
+    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const daySlots = slotsByDay[iso] || [];
+    const hasSlots = daySlots.length > 0;
+    const isToday  = iso === today;
+    const isSel    = iso === selectedDay;
+
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (hasSlots) cls += ' has-slots';
+    if (isSel) cls += ' selected';
+
+    const pips = daySlots.slice(0,6).map(s=>`<span class="${s.booked?'pip-taken':''}"></span>`).join('');
+
+    html += `<div class="${cls}" onclick="${hasSlots ? `onCalDayClick('${iso}')` : ''}">
+      <span>${d}</span>
+      <div class="cal-pips">${pips}</div>
+    </div>`;
   }
 
-  const el = document.getElementById('admin-list');
-  if (!slots.length) {
-    el.innerHTML = '<div class="empty">No slots yet — add one above.</div>';
-    return;
-  }
-  const sorted = [...slots].sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
-  el.innerHTML = sorted.map(s => `
-    <div class="slot-row">
-      <div class="dot ${s.booked ? 'dot-taken' : 'dot-open'}"></div>
+  containerEl.innerHTML = html;
+}
+
+// ── Admin calendar ───────────────────────────────────────
+let adminSelectedDay = null;
+
+function renderAdminCal() {
+  const byDay = {};
+  slots.forEach(s => { if (!byDay[s.date]) byDay[s.date]=[]; byDay[s.date].push(s); });
+  buildCal(
+    document.getElementById('admin-cal-grid'),
+    document.getElementById('admin-cal-month'),
+    adminCalDate, byDay, null, adminSelectedDay
+  );
+  // re-attach onclick via global
+  window.onCalDayClick = (iso) => {
+    adminSelectedDay = iso;
+    renderAdminCal();
+    showAdminDayDetail(iso);
+  };
+  if (adminSelectedDay) showAdminDayDetail(adminSelectedDay);
+}
+
+function showAdminDayDetail(iso) {
+  const detail = document.getElementById('admin-day-detail');
+  const title  = document.getElementById('admin-day-title');
+  const list   = document.getElementById('admin-day-slots');
+  const daySlots = slots.filter(s=>s.date===iso).sort((a,b)=>a.start.localeCompare(b.start));
+
+  title.textContent = fmtDate(iso);
+  detail.classList.add('open');
+
+  if (!daySlots.length) { list.innerHTML='<div class="empty" style="padding:1rem 0">No slots on this day.</div>'; return; }
+
+  list.innerHTML = daySlots.map(s=>`
+    <div class="slot-row" style="padding:10px 0">
+      <div class="dot ${s.booked?'dot-taken':'dot-open'}"></div>
       <div class="slot-info">
         <div class="slot-name">${esc(s.label)}</div>
-        <div class="slot-time">${fmtSlot(s)}</div>
-        ${s.booked ? `<div class="slot-who">Booked by ${esc(s.bookedBy)}${s.bookedEmail ? ' · ' + esc(s.bookedEmail) : ''}</div>` : ''}
+        <div class="slot-time">${s.start} – ${s.end}</div>
+        ${s.booked ? `<div class="slot-who">Booked by ${esc(s.bookedBy)}${s.bookedEmail?' · '+esc(s.bookedEmail):''}</div>` : ''}
       </div>
-      <span class="badge ${s.booked ? 'badge-taken' : 'badge-open'}">${s.booked ? 'Booked' : 'Open'}</span>
+      <span class="badge ${s.booked?'badge-taken':'badge-open'}">${s.booked?'Booked':'Open'}</span>
       <button class="btn btn-danger btn-sm" onclick="deleteSlot('${s.id}')">Remove</button>
     </div>
   `).join('');
 }
 
-// ── Add / delete ─────────────────────────────────────────
+function calMove(dir) {
+  adminCalDate.setMonth(adminCalDate.getMonth() + dir);
+  adminSelectedDay = null;
+  document.getElementById('admin-day-detail').classList.remove('open');
+  renderAdminCal();
+}
+
+// ── Booking calendar ─────────────────────────────────────
+let bookSelectedDay = null;
+
+function renderBookCal() {
+  const byDay = {};
+  slots.filter(s=>!s.booked).forEach(s => { if (!byDay[s.date]) byDay[s.date]=[]; byDay[s.date].push(s); });
+
+  buildCal(
+    document.getElementById('book-cal-grid'),
+    document.getElementById('book-cal-month'),
+    bookCalDate, byDay, null, bookSelectedDay
+  );
+
+  window.onCalDayClick = (iso) => {
+    bookSelectedDay = iso;
+    renderBookCal();
+    showBookDayDetail(iso);
+  };
+  if (bookSelectedDay) showBookDayDetail(bookSelectedDay);
+}
+
+function showBookDayDetail(iso) {
+  const detail   = document.getElementById('book-day-detail');
+  const title    = document.getElementById('book-day-title');
+  const list     = document.getElementById('book-day-slots');
+  const daySlots = slots.filter(s=>s.date===iso && !s.booked).sort((a,b)=>a.start.localeCompare(b.start));
+
+  title.textContent = fmtDate(iso);
+  detail.classList.add('open');
+
+  if (!daySlots.length) { list.innerHTML='<div class="empty" style="padding:1rem 0">No open slots on this day.</div>'; return; }
+
+  list.innerHTML = daySlots.map(s=>`
+    <div class="book-row" onclick="openModal('${s.id}')" style="padding:12px 0;border-radius:8px">
+      <div class="dot dot-open"></div>
+      <div class="slot-info">
+        <div class="slot-name">${esc(s.label)}</div>
+        <div class="slot-time">${s.start} – ${s.end}</div>
+      </div>
+      <span class="badge badge-open">Available</span>
+    </div>
+  `).join('');
+}
+
+function bookCalMove(dir) {
+  bookCalDate.setMonth(bookCalDate.getMonth() + dir);
+  bookSelectedDay = null;
+  document.getElementById('book-day-detail').classList.remove('open');
+  renderBookCal();
+}
+
+// ── Admin list render ────────────────────────────────────
+function renderAdmin() {
+  const total  = slots.length;
+  const booked = slots.filter(s=>s.booked).length;
+  document.getElementById('s-total').textContent  = total;
+  document.getElementById('s-open').textContent   = total - booked;
+  document.getElementById('s-booked').textContent = booked;
+
+  const ls = document.getElementById('link-section');
+  if (total > 0) {
+    ls.style.display = 'block';
+    document.getElementById('booking-url').value = location.href.split('?')[0] + '?book=1';
+  } else {
+    ls.style.display = 'none';
+  }
+
+  const el = document.getElementById('admin-list');
+  if (!slots.length) { el.innerHTML='<div class="empty">No slots yet — add one above.</div>'; return; }
+  const sorted = [...slots].sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  el.innerHTML = sorted.map(s=>`
+    <div class="slot-row">
+      <div class="dot ${s.booked?'dot-taken':'dot-open'}"></div>
+      <div class="slot-info">
+        <div class="slot-name">${esc(s.label)}</div>
+        <div class="slot-time">${fmtSlot(s)}</div>
+        ${s.booked?`<div class="slot-who">Booked by ${esc(s.bookedBy)}${s.bookedEmail?' · '+esc(s.bookedEmail):''}</div>`:''}
+      </div>
+      <span class="badge ${s.booked?'badge-taken':'badge-open'}">${s.booked?'Booked':'Open'}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteSlot('${s.id}')">Remove</button>
+    </div>
+  `).join('');
+
+  // refresh cal if visible
+  if (document.getElementById('admin-tab-cal').style.display !== 'none') renderAdminCal();
+}
+
+// ── Booking list render ──────────────────────────────────
+function renderBooking() {
+  const el   = document.getElementById('book-list');
+  const open  = slots.filter(s=>!s.booked).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  const taken = slots.filter(s=>s.booked).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+
+  if (!open.length && !taken.length) { el.innerHTML='<div class="empty">No slots available right now.</div>'; return; }
+
+  el.innerHTML = [...open,...taken].map(s=>`
+    <div class="book-row ${s.booked?'taken':''}" onclick="${s.booked?'':` openModal('${s.id}')`}">
+      <div class="dot ${s.booked?'dot-taken':'dot-open'}"></div>
+      <div class="slot-info">
+        <div class="slot-name">${esc(s.label)}</div>
+        <div class="slot-time">${fmtSlot(s)}</div>
+      </div>
+      <span class="badge ${s.booked?'badge-taken':'badge-open'}">${s.booked?'Taken':'Available'}</span>
+    </div>
+  `).join('');
+
+  if (document.getElementById('book-tab-cal').style.display !== 'none') renderBookCal();
+}
+
+// ── Add / Delete ─────────────────────────────────────────
 async function addSlot() {
   const label = document.getElementById('f-label').value.trim();
   const date  = document.getElementById('f-date').value;
@@ -365,200 +587,149 @@ async function addSlot() {
   const end   = document.getElementById('f-end').value;
   const errEl = document.getElementById('add-err');
   errEl.style.display = 'none';
-
-  if (!date || !start || !end) { showErr(errEl, 'Please fill in date, start and end time.'); return; }
-  if (start >= end)             { showErr(errEl, 'End time must be after start time.'); return; }
+  if (!date||!start||!end) { showErr(errEl,'Please fill in date, start and end time.'); return; }
+  if (start>=end)           { showErr(errEl,'End time must be after start time.'); return; }
 
   const btn = document.getElementById('add-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
-
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Saving…';
   try {
     const fresh = await getData();
-    fresh.slots.push({ id: genId(), label: label || 'Meeting', date, start, end, booked: false, bookedBy: '', bookedEmail: '' });
+    fresh.slots.push({id:genId(),label:label||'Meeting',date,start,end,booked:false,bookedBy:'',bookedEmail:''});
     await putData(fresh);
     slots = fresh.slots;
     renderAdmin();
-    document.getElementById('f-label').value = '';
-    document.getElementById('f-date').value = '';
-    document.getElementById('f-start').value = '';
-    document.getElementById('f-end').value = '';
-  } catch(e) {
-    showErr(errEl, 'Could not save — check your JSONBin config.');
-  }
-  btn.disabled = false; btn.innerHTML = '+ Add slot';
+    ['f-label','f-date','f-start','f-end'].forEach(id=>document.getElementById(id).value='');
+  } catch(e) { showErr(errEl,'Could not save — check your JSONBin config.'); }
+  btn.disabled=false; btn.innerHTML='+ Add slot';
 }
 
 async function deleteSlot(id) {
   const fresh = await getData();
-  fresh.slots = fresh.slots.filter(s => s.id !== id);
+  fresh.slots = fresh.slots.filter(s=>s.id!==id);
   await putData(fresh);
   slots = fresh.slots;
+  adminSelectedDay = adminSelectedDay; // keep selection
   renderAdmin();
-}
-
-// ── Booking rendering ────────────────────────────────────
-function renderBooking() {
-  const el = document.getElementById('book-list');
-  const open = slots.filter(s => !s.booked).sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
-  const taken = slots.filter(s => s.booked).sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start));
-  const all = [...open, ...taken];
-
-  if (!all.length) {
-    el.innerHTML = '<div class="empty">No slots available right now.</div>';
-    return;
-  }
-  el.innerHTML = all.map(s => `
-    <div class="book-row ${s.booked ? 'taken' : ''}" onclick="${s.booked ? '' : "openModal('" + s.id + "')"}">
-      <div class="dot ${s.booked ? 'dot-taken' : 'dot-open'}"></div>
-      <div class="slot-info">
-        <div class="slot-name">${esc(s.label)}</div>
-        <div class="slot-time">${fmtSlot(s)}</div>
-      </div>
-      <span class="badge ${s.booked ? 'badge-taken' : 'badge-open'}">${s.booked ? 'Taken' : 'Available'}</span>
-    </div>
-  `).join('');
-}
-
-// ── Modal ────────────────────────────────────────────────
-function openModal(id) {
-  pendingId = id;
-  const s = slots.find(x => x.id === id);
-  document.getElementById('modal-desc').textContent = s.label + '\n' + fmtSlot(s);
-  document.getElementById('m-name').value = '';
-  document.getElementById('m-email').value = '';
-  document.getElementById('modal-err').style.display = 'none';
-  document.getElementById('modal').classList.add('open');
-}
-function closeModal() { document.getElementById('modal').classList.remove('open'); pendingId = null; }
-
-async function confirmBooking() {
-  const name  = document.getElementById('m-name').value.trim();
-  const email = document.getElementById('m-email').value.trim();
-  const errEl = document.getElementById('modal-err');
-  errEl.style.display = 'none';
-  if (!name) { showErr(errEl, 'Please enter your name.'); return; }
-
-  const btn = document.getElementById('confirm-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-
-  try {
-    const fresh = await getData();
-    const s = fresh.slots.find(x => x.id === pendingId);
-    if (!s || s.booked) {
-      showErr(errEl, 'This slot was just taken — please choose another.');
-      slots = fresh.slots; renderBooking(); btn.disabled = false; btn.innerHTML = 'Confirm'; return;
-    }
-    s.booked = true; s.bookedBy = name; s.bookedEmail = email;
-    await putData(fresh);
-    slots = fresh.slots;
-    closeModal();
-    document.getElementById('book-wrap').style.display = 'none';
-    document.getElementById('book-success').style.display = 'block';
-    document.getElementById('success-detail').textContent = s.label + ' · ' + fmtSlot(s);
-  } catch(e) {
-    showErr(errEl, 'Something went wrong — please try again.');
-  }
-  btn.disabled = false; btn.innerHTML = 'Confirm';
+  if (adminSelectedDay) showAdminDayDetail(adminSelectedDay);
 }
 
 // ── Bulk add ─────────────────────────────────────────────
 function toggleBulk() {
-  const toggle = document.getElementById('bulk-toggle');
-  const panel  = document.getElementById('bulk-panel');
-  toggle.classList.toggle('open');
-  panel.classList.toggle('open');
+  document.getElementById('bulk-toggle').classList.toggle('open');
+  document.getElementById('bulk-panel').classList.toggle('open');
 }
 
 async function addBulk() {
-  const raw    = document.getElementById('bulk-input').value.trim();
-  const errEl  = document.getElementById('bulk-err');
-  const status = document.getElementById('bulk-status');
-  errEl.style.display = 'none';
-  status.textContent = '';
+  const raw   = document.getElementById('bulk-input').value.trim();
+  const errEl = document.getElementById('bulk-err');
+  const stat  = document.getElementById('bulk-status');
+  errEl.style.display='none'; stat.textContent='';
+  if (!raw) { showErr(errEl,'Paste some slots in first.'); return; }
 
-  if (!raw) { showErr(errEl, 'Paste some slots in first.'); return; }
-
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-  const parsed = [];
-  const bad = [];
-
-  lines.forEach((line, i) => {
-    const parts = line.split(',').map(p => p.trim());
-    let label, date, start, end;
-
-    // detect if first part looks like a date (YYYY-MM-DD)
-    if (/^\d{4}-\d{2}-\d{2}$/.test(parts[0])) {
-      [date, start, end] = parts;
-      label = 'Meeting';
-    } else {
-      [label, date, start, end] = parts;
-    }
-
-    if (!date || !start || !end) { bad.push(i + 1); return; }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { bad.push(i + 1); return; }
-    if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) { bad.push(i + 1); return; }
-    if (start >= end) { bad.push(i + 1); return; }
-
-    parsed.push({ id: genId(), label: label || 'Meeting', date, start, end, booked: false, bookedBy: '', bookedEmail: '' });
+  const lines  = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  const parsed = [], bad = [];
+  lines.forEach((line,i) => {
+    const p = line.split(',').map(x=>x.trim());
+    let label,date,start,end;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(p[0])) { [date,start,end]=p; label='Meeting'; }
+    else { [label,date,start,end]=p; }
+    if (!date||!start||!end) { bad.push(i+1); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { bad.push(i+1); return; }
+    if (!/^\d{2}:\d{2}$/.test(start)||!/^\d{2}:\d{2}$/.test(end)) { bad.push(i+1); return; }
+    if (start>=end) { bad.push(i+1); return; }
+    parsed.push({id:genId(),label:label||'Meeting',date,start,end,booked:false,bookedBy:'',bookedEmail:''});
   });
-
-  if (bad.length) { showErr(errEl, `Line${bad.length > 1 ? 's' : ''} ${bad.join(', ')} couldn't be parsed — check the format.`); return; }
-  if (!parsed.length) { showErr(errEl, 'No valid slots found.'); return; }
+  if (bad.length) { showErr(errEl,`Line${bad.length>1?'s':''} ${bad.join(', ')} couldn't be parsed.`); return; }
+  if (!parsed.length) { showErr(errEl,'No valid slots found.'); return; }
 
   const btn = document.getElementById('bulk-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
-
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Saving…';
   try {
     const fresh = await getData();
     fresh.slots.push(...parsed);
     await putData(fresh);
     slots = fresh.slots;
     renderAdmin();
-    document.getElementById('bulk-input').value = '';
-    status.textContent = `✓ Added ${parsed.length} slot${parsed.length > 1 ? 's' : ''}`;
-  } catch(e) {
-    showErr(errEl, 'Could not save — check your JSONBin config.');
-  }
-  btn.disabled = false; btn.innerHTML = '+ Add all';
+    document.getElementById('bulk-input').value='';
+    stat.textContent=`✓ Added ${parsed.length} slot${parsed.length>1?'s':''}`;
+  } catch(e) { showErr(errEl,'Could not save — check your JSONBin config.'); }
+  btn.disabled=false; btn.innerHTML='+ Add all';
+}
+
+// ── Modal ────────────────────────────────────────────────
+function openModal(id) {
+  pendingId = id;
+  const s = slots.find(x=>x.id===id);
+  document.getElementById('modal-desc').textContent = s.label+'\n'+fmtSlot(s);
+  document.getElementById('m-name').value='';
+  document.getElementById('m-email').value='';
+  document.getElementById('modal-err').style.display='none';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); pendingId=null; }
+
+async function confirmBooking() {
+  const name  = document.getElementById('m-name').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const errEl = document.getElementById('modal-err');
+  errEl.style.display='none';
+  if (!name) { showErr(errEl,'Please enter your name.'); return; }
+
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try {
+    const fresh = await getData();
+    const s = fresh.slots.find(x=>x.id===pendingId);
+    if (!s||s.booked) {
+      showErr(errEl,'This slot was just taken — please choose another.');
+      slots=fresh.slots; renderBooking(); btn.disabled=false; btn.innerHTML='Confirm'; return;
+    }
+    s.booked=true; s.bookedBy=name; s.bookedEmail=email;
+    await putData(fresh);
+    slots=fresh.slots;
+    closeModal();
+    document.getElementById('book-wrap').style.display='none';
+    document.getElementById('book-success').style.display='block';
+    document.getElementById('success-detail').textContent = s.label+' · '+fmtSlot(s);
+  } catch(e) { showErr(errEl,'Something went wrong — please try again.'); }
+  btn.disabled=false; btn.innerHTML='Confirm';
 }
 
 // ── Helpers ──────────────────────────────────────────────
-function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
-function esc(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
 function copyLink() {
-  const url = document.getElementById('booking-url').value;
-  navigator.clipboard.writeText(url).then(() => {
+  navigator.clipboard.writeText(document.getElementById('booking-url').value).then(()=>{
     const btn = document.querySelector('#link-section .btn');
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = 'Copy', 1600);
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',1600);
   });
 }
 
 // ── Init ─────────────────────────────────────────────────
 async function init() {
-  const isBooking = new URLSearchParams(window.location.search).has('book');
-
+  const isBooking = new URLSearchParams(location.search).has('book');
   if (!configured) {
-    document.getElementById('setup-notice').style.display = 'block';
-    document.getElementById('admin-list').innerHTML = '<div class="empty">Configure JSONBin above to get started.</div>';
-    document.getElementById('s-total').textContent = document.getElementById('s-open').textContent = document.getElementById('s-booked').textContent = '0';
+    document.getElementById('setup-notice').style.display='block';
+    document.getElementById('admin-list').innerHTML='<div class="empty">Configure JSONBin above to get started.</div>';
+    ['s-total','s-open','s-booked'].forEach(id=>document.getElementById(id).textContent='0');
     return;
   }
-
   try {
-    const data = await getData();
-    slots = data.slots || [];
+    slots = (await getData()).slots || [];
   } catch(e) {
-    document.getElementById('admin-list').innerHTML = '<div class="empty" style="color:var(--red)">Could not load data — check your JSONBin config.</div>';
+    document.getElementById('admin-list').innerHTML='<div class="empty" style="color:var(--red)">Could not load data — check your JSONBin config.</div>';
     return;
   }
-
   if (isBooking) {
     document.getElementById('view-admin').classList.remove('active');
     document.getElementById('view-booking').classList.add('active');
+    // set booking cal to first month that has open slots
+    const firstOpen = slots.filter(s=>!s.booked).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    if (firstOpen) { bookCalDate = new Date(firstOpen.date+'T00:00:00'); bookCalDate.setDate(1); }
     renderBooking();
   } else {
+    // set admin cal to first month with any slots
+    const first = slots.sort((a,b)=>a.date.localeCompare(b.date))[0];
+    if (first) { adminCalDate = new Date(first.date+'T00:00:00'); adminCalDate.setDate(1); }
     renderAdmin();
   }
 }
