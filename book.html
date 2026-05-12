@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Book a meeting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ee;--surface:#fff;--border:#e2dfd8;--border-md:#c9c5bc;
+  --text:#1a1917;--muted:#7a776f;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#9b2335;--red-bg:#fde8ec;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
+.container{max-width:620px;margin:0 auto}
+header{margin-bottom:2rem}
+header h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin-bottom:4px}
+header p{font-size:14px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden}
+.card-body{padding:1.2rem}
+.tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.tab-btn{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;padding:8px 16px;margin-bottom:-1px;transition:color .12s,border-color .12s}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-open{background:var(--green)}.dot-taken{background:var(--red)}
+.slot-info{flex:1;min-width:0}
+.slot-name{font-size:14px;font-weight:500}
+.slot-time{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;flex-shrink:0}
+.badge-open{background:var(--green-bg);color:var(--green)}
+.badge-taken{background:var(--red-bg);color:var(--red)}
+.book-row{display:flex;align-items:center;gap:14px;padding:16px 1.2rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.book-row:last-child{border-bottom:none}
+.book-row:hover:not(.taken){background:#faf9f6}
+.book-row.taken{opacity:.45;cursor:not-allowed}
+.empty{text-align:center;padding:2.5rem 1rem;font-size:14px;color:var(--muted)}
+.loading{display:flex;align-items:center;gap:10px;padding:1.5rem 1.2rem;font-size:14px;color:var(--muted)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--text);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cal-month{font-size:16px;font-weight:500}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:center;padding:6px 0}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:13px;cursor:default;border:1px solid transparent;transition:border-color .12s,background .12s;padding:4px 2px}
+.cal-day.other-month{opacity:.3}
+.cal-day.today{background:var(--bg);border-color:var(--border-md)}
+.cal-day.has-slots{cursor:pointer}.cal-day.has-slots:hover{background:var(--bg);border-color:var(--border-md)}
+.cal-day.selected{background:var(--text);color:#fff;border-color:var(--text)}
+.cal-day.selected .cal-pips span{background:rgba(255,255,255,.6)}
+.cal-pips{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;min-height:8px}
+.cal-pips span{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.day-detail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
+.day-detail.open{display:block}
+.day-detail-title{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:50;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.75rem;width:100%;max-width:400px}
+.modal h2{font-size:18px;font-weight:400;margin-bottom:6px}
+.modal .slot-desc{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:1.5rem;line-height:1.5}
+.modal .field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+.field input{width:100%;height:38px;padding:0 10px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .12s}
+.field input:focus{border-color:var(--border-md);background:#fff}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.2rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:38px;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text);transition:background .12s,transform .1s;white-space:nowrap}
+.btn:hover{background:var(--bg)}.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-dark:hover{opacity:.88;background:var(--text)}
+.btn-ghost{border-color:transparent;padding:0 8px}.btn-ghost:hover{background:var(--bg);border-color:var(--border)}
+.btn-sm{height:30px;padding:0 12px;font-size:12px}
+.err{font-size:13px;color:var(--red);margin-top:6px;display:none}
+.success{text-align:center;padding:3rem 1rem}
+.success-mark{font-size:44px;margin-bottom:1rem;line-height:1}
+.success h2{font-size:22px;font-weight:300;margin-bottom:8px}
+.success p{font-size:14px;color:var(--muted)}
+#not-found{display:none;text-align:center;padding:4rem 1rem}
+#not-found h2{font-size:22px;font-weight:300;margin-bottom:8px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="not-found">
+    <h2>Page not found</h2>
+    <p style="font-size:14px;color:var(--muted)">This link is invalid or has expired.</p>
+  </div>
+  <div id="main" style="display:none">
+    <header><h1>Book a meeting</h1><p>Pick a time that works for you. Slots are 1-to-1 — once booked they're gone.</p></header>
+    <div id="book-wrap">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('list',this)">List</button>
+        <button class="tab-btn" onclick="switchTab('cal',this)">Calendar</button>
+      </div>
+      <div id="tab-list">
+        <div class="card"><div id="book-list"><div class="loading"><span class="spinner"></span> Loading…</div></div></div>
+      </div>
+      <div id="tab-cal" style="display:none">
+        <div class="card"><div class="card-body">
+          <div class="cal-nav">
+            <button class="btn btn-ghost btn-sm" onclick="calMove(-1)">← Prev</button>
+            <span class="cal-month" id="cal-month"></span>
+            <button class="btn btn-ghost btn-sm" onclick="calMove(1)">Next →</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="day-detail" id="day-detail">
+            <div class="day-detail-title" id="day-title"></div>
+            <div id="day-slots"></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div id="book-success" style="display:none">
+      <div class="success"><div class="success-mark">✓</div><h2>You're booked!</h2><p id="success-detail"></p></div>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h2>Confirm booking</h2>
+    <div class="slot-desc" id="modal-desc"></div>
+    <div class="field"><label>Your name</label><input id="m-name" type="text" placeholder="Jane Smith"/></div>
+    <div class="field"><label>Email <span style="font-weight:300;text-transform:none">(optional)</span></label><input id="m-email" type="email" placeholder="jane@example.com"/></div>
+    <div id="modal-err" class="err"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-dark" id="confirm-btn" onclick="confirmBooking()">Confirm</button>
+    </div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script>
+const API='https://api.jsonbin.io/v3/b/'+CONFIG.jsonbinBinId;
+const HDRS={'Content-Type':'application/json','X-Master-Key':CONFIG.jsonbinApiKey,'X-Bin-Versioning':'false'};
+let slots=[],pendingId=null,calDate=new Date(),selectedDay=null;
+calDate.setDate(1);
+
+async function getData(){const r=await fetch(API+'/latest',{headers:HDRS});if(!r.ok)throw new Error();return(await r.json()).record;}
+async function putData(d){const r=await fetch(API,{method:'PUT',headers:HDRS,body:JSON.stringify(d)});if(!r.ok)throw new Error();}
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
+function fmtSlot(s){return fmtDate(s.date)+'  ·  '+s.start+' – '+s.end;}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-list').style.display=name==='list'?'block':'none';
+  document.getElementById('tab-cal').style.display=name==='cal'?'block':'none';
+  if(name==='cal')renderCal();
+}
+
+function renderBooking(){
+  const el=document.getElementById('book-list');
+  const open=slots.filter(s=>!s.booked).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  const taken=slots.filter(s=>s.booked).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  if(!open.length&&!taken.length){el.innerHTML='<div class="empty">No slots available right now.</div>';return;}
+  el.innerHTML=[...open,...taken].map(s=>`
+    <div class="book-row ${s.booked?'taken':''}" onclick="${s.booked?'':` openModal('${s.id}')`}">
+      <div class="dot ${s.booked?'dot-taken':'dot-open'}"></div>
+      <div class="slot-info"><div class="slot-name">${esc(s.label)}</div><div class="slot-time">${fmtSlot(s)}</div></div>
+      <span class="badge ${s.booked?'badge-taken':'badge-open'}">${s.booked?'Taken':'Available'}</span>
+    </div>`).join('');
+}
+
+function renderCal(){
+  const byDay={};slots.filter(s=>!s.booked).forEach(s=>{if(!byDay[s.date])byDay[s.date]=[];byDay[s.date].push(s);});
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('cal-month').textContent=calDate.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const off=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate(),today=new Date().toISOString().slice(0,10);
+  const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html=DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<off;i++)html+=`<div class="cal-day other-month"></div>`;
+  for(let d=1;d<=dim;d++){
+    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ds=byDay[iso]||[];
+    const cls='cal-day'+(iso===today?' today':'')+(ds.length?' has-slots':'')+(iso===selectedDay?' selected':'');
+    html+=`<div class="${cls}" onclick="${ds.length?`selectDay('${iso}')`:''}""><span>${d}</span><div class="cal-pips">${ds.slice(0,6).map(()=>`<span></span>`).join('')}</div></div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+  if(selectedDay)showDayDetail(selectedDay);
+}
+function selectDay(iso){selectedDay=iso;renderCal();}
+function showDayDetail(iso){
+  const ds=slots.filter(s=>s.date===iso&&!s.booked).sort((a,b)=>a.start.localeCompare(b.start));
+  document.getElementById('day-title').textContent=fmtDate(iso);
+  document.getElementById('day-detail').classList.add('open');
+  document.getElementById('day-slots').innerHTML=ds.length
+    ?ds.map(s=>`<div class="book-row" onclick="openModal('${s.id}')" style="padding:12px 0;border-radius:8px"><div class="dot dot-open"></div><div class="slot-info"><div class="slot-name">${esc(s.label)}</div><div class="slot-time">${s.start} – ${s.end}</div></div><span class="badge badge-open">Available</span></div>`).join('')
+    :'<div class="empty" style="padding:1rem 0">No open slots on this day.</div>';
+}
+function calMove(dir){calDate.setMonth(calDate.getMonth()+dir);selectedDay=null;document.getElementById('day-detail').classList.remove('open');renderCal();}
+
+function openModal(id){
+  pendingId=id;const s=slots.find(x=>x.id===id);
+  document.getElementById('modal-desc').textContent=s.label+'\n'+fmtSlot(s);
+  document.getElementById('m-name').value='';document.getElementById('m-email').value='';
+  document.getElementById('modal-err').style.display='none';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');pendingId=null;}
+
+async function confirmBooking(){
+  const name=document.getElementById('m-name').value.trim(),email=document.getElementById('m-email').value.trim(),errEl=document.getElementById('modal-err');
+  errEl.style.display='none';
+  if(!name){showErr(errEl,'Please enter your name.');return;}
+  const btn=document.getElementById('confirm-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  try{
+    const fresh=await getData(),s=fresh.slots.find(x=>x.id===pendingId);
+    if(!s||s.booked){showErr(errEl,'This slot was just taken — please choose another.');slots=fresh.slots;renderBooking();btn.disabled=false;btn.innerHTML='Confirm';return;}
+    s.booked=true;s.bookedBy=name;s.bookedEmail=email;
+    await putData(fresh);slots=fresh.slots;closeModal();
+    document.getElementById('book-wrap').style.display='none';
+    document.getElementById('book-success').style.display='block';
+    document.getElementById('success-detail').textContent=s.label+' · '+fmtSlot(s);
+  }catch(e){showErr(errEl,'Something went wrong — please try again.');}
+  btn.disabled=false;btn.innerHTML='Confirm';
+}
+
+async function init(){
+  // validate token
+  const token=new URLSearchParams(location.search).get('token');
+  if(!token||token!==CONFIG.bookingToken){
+    document.getElementById('not-found').style.display='block';
+    return;
+  }
+  document.getElementById('main').style.display='block';
+  try{
+    slots=(await getData()).slots||[];
+  }catch(e){
+    document.getElementById('book-list').innerHTML='<div class="empty" style="color:var(--red)">Could not load slots.</div>';
+    return;
+  }
+  const first=slots.filter(s=>!s.booked).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  if(first){calDate=new Date(first.date+'T00:00:00');calDate.setDate(1);}
+  renderBooking();
+}
+init();
+</script>
+</body>
+</html>

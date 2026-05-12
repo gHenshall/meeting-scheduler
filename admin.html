@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Scheduler — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ee;--surface:#fff;--border:#e2dfd8;--border-md:#c9c5bc;
+  --text:#1a1917;--muted:#7a776f;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#9b2335;--red-bg:#fde8ec;
+  --blue:#1a4f8a;--blue-bg:#e8f0fb;
+  --amber:#7a5c00;--amber-bg:#fff8d6;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
+.container{max-width:720px;margin:0 auto}
+header{margin-bottom:2rem}
+header h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin-bottom:4px}
+header p{font-size:14px;color:var(--muted)}
+#pw-screen{display:flex;align-items:center;justify-content:center;min-height:70vh}
+.pw-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;width:100%;max-width:360px;text-align:center}
+.pw-box h2{font-size:20px;font-weight:400;margin-bottom:6px}
+.pw-box p{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+.pw-box input{width:100%;height:42px;padding:0 14px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:15px;color:var(--text);background:var(--bg);outline:none;text-align:center;letter-spacing:.1em;margin-bottom:10px;transition:border-color .12s}
+.pw-box input:focus{border-color:var(--border-md);background:#fff}
+.pw-err{font-size:13px;color:var(--red);margin-bottom:10px;display:none}
+.top-tabs{display:flex;margin-bottom:2rem;border-bottom:2px solid var(--border)}
+.top-tab{font-family:var(--sans);font-size:15px;font-weight:400;color:var(--muted);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;padding:10px 20px;margin-bottom:-2px;transition:color .12s,border-color .12s}
+.top-tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden}
+.card-head{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h2{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.card-body{padding:1.2rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.2rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-val{font-size:28px;font-weight:300;letter-spacing:-1px}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:1px}
+.form-row{display:grid;gap:10px;margin-bottom:10px}
+.form-row.cols-4{grid-template-columns:1.6fr 1fr 1fr auto}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;height:38px;padding:0 10px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .12s}
+.field input:focus,.field select:focus{border-color:var(--border-md);background:#fff}
+.err{font-size:13px;color:var(--red);margin-top:6px;display:none}
+.link-box{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+.link-box input{flex:1;border:none;background:transparent;font-family:var(--mono);font-size:12px;color:var(--muted);outline:none}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:38px;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text);transition:background .12s,transform .1s;white-space:nowrap}
+.btn:hover{background:var(--bg)}.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-dark:hover{opacity:.88;background:var(--text)}
+.btn-sm{height:30px;padding:0 12px;font-size:12px}
+.btn-danger{color:var(--red);border-color:#f0b8c0}.btn-danger:hover{background:var(--red-bg)}
+.btn-ghost{border-color:transparent;padding:0 8px}.btn-ghost:hover{background:var(--bg);border-color:var(--border)}
+.tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.tab-btn{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;padding:8px 16px;margin-bottom:-1px;transition:color .12s,border-color .12s}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.slot-row{display:flex;align-items:center;gap:12px;padding:12px 1.2rem;border-bottom:1px solid var(--border)}
+.slot-row:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-open{background:var(--green)}.dot-taken{background:var(--red)}
+.slot-info{flex:1;min-width:0}
+.slot-name{font-size:14px;font-weight:500}
+.slot-time{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
+.slot-who{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;flex-shrink:0}
+.badge-open{background:var(--green-bg);color:var(--green)}
+.badge-taken{background:var(--red-bg);color:var(--red)}
+.empty{text-align:center;padding:2.5rem 1rem;font-size:14px;color:var(--muted)}
+.loading{display:flex;align-items:center;gap:10px;padding:1.5rem 1.2rem;font-size:14px;color:var(--muted)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--text);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cal-month{font-size:16px;font-weight:500}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:center;padding:6px 0}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:13px;cursor:default;border:1px solid transparent;transition:border-color .12s,background .12s;padding:4px 2px}
+.cal-day.other-month{opacity:.3}
+.cal-day.today{background:var(--bg);border-color:var(--border-md)}
+.cal-day.has-slots{cursor:pointer}.cal-day.has-slots:hover{background:var(--bg);border-color:var(--border-md)}
+.cal-day.selected{background:var(--text);color:#fff;border-color:var(--text)}
+.cal-day.selected .cal-pips span{background:rgba(255,255,255,.55)}
+.cal-pips{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;min-height:8px}
+.cal-pips span{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.cal-pips span.pip-taken{background:var(--red)}
+.day-detail{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;display:none}
+.day-detail.open{display:block}
+.day-detail-title{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.bulk-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:var(--sans);padding:0;margin-top:10px}
+.bulk-toggle:hover{color:var(--text)}
+.chevron{display:inline-block;transition:transform .2s;font-size:10px}
+.bulk-toggle.open .chevron{transform:rotate(90deg)}
+.bulk-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.bulk-panel.open{display:block}
+.bulk-panel textarea{width:100%;height:100px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);outline:none;resize:vertical;line-height:1.6;transition:border-color .12s}
+.bulk-panel textarea:focus{border-color:var(--border-md);background:#fff}
+.bulk-hint{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.bulk-hint code{font-family:var(--mono);background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px}
+.bulk-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
+/* groups */
+.group-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.group-card-head{padding:1rem 1.2rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .12s}
+.group-card-head:hover{background:#faf9f6}
+.group-expand{font-size:11px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.group-card.open .group-expand{transform:rotate(90deg)}
+.group-title{font-size:16px;font-weight:500;flex:1}
+.group-meta{font-size:12px;color:var(--muted)}
+.group-body{display:none;border-top:1px solid var(--border)}
+.group-card.open .group-body{display:block}
+.group-section{padding:1rem 1.2rem;border-bottom:1px solid var(--border)}
+.group-section:last-child{border-bottom:none}
+.group-section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px}
+.type-toggle{display:flex;margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content}
+.type-btn{font-family:var(--sans);font-size:13px;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:7px 16px;transition:background .12s,color .12s}
+.type-btn.active{background:var(--text);color:#fff}
+.summary-slot{padding:12px 1.2rem;border-bottom:1px solid var(--border)}
+.summary-slot:last-child{border-bottom:none}
+.summary-slot-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.summary-slot-label{font-size:14px;font-weight:500;flex:1}
+.summary-count{font-size:13px;font-weight:500;color:var(--green);background:var(--green-bg);padding:2px 8px;border-radius:20px}
+.summary-names{display:flex;flex-wrap:wrap;gap:6px}
+.name-chip{font-size:12px;padding:3px 10px;background:var(--bg);border:1px solid var(--border);border-radius:20px}
+.summary-empty{font-size:13px;color:var(--muted);font-style:italic}
+#admin-ui{display:none}
+.view{display:none}.view.active{display:block}
+@media(max-width:560px){
+  .form-row.cols-4{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .cal-day{font-size:11px}
+  .top-tab{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="pw-screen">
+    <div class="pw-box">
+      <h2>Admin access</h2>
+      <p>Enter the password to manage your scheduler.</p>
+      <input id="pw-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()"/>
+      <div id="pw-err" class="pw-err">Incorrect password.</div>
+      <button class="btn btn-dark" style="width:100%;justify-content:center" onclick="checkPw()" id="pw-btn">Sign in</button>
+    </div>
+  </div>
+
+  <div id="admin-ui">
+    <header><h1>Meeting scheduler</h1><p>Manage 1-to-1 slots and group availability.</p></header>
+
+    <div class="top-tabs">
+      <button class="top-tab active" onclick="switchTopTab('one2one',this)">1-to-1 bookings</button>
+      <button class="top-tab" onclick="switchTopTab('groups',this)">Group availability</button>
+    </div>
+
+    <!-- 1-TO-1 -->
+    <div id="view-one2one" class="view active">
+      <div id="link-section-121" style="display:none">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px 10px 0 0;border-bottom:none;padding:.8rem 1.2rem">
+          <span style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Booking link — share this</span>
+        </div>
+        <div class="link-box" style="border-radius:0 0 10px 10px;border-top:none;margin-bottom:1.2rem">
+          <input id="booking-url" readonly/>
+          <button class="btn btn-sm" onclick="copyLink('booking-url')">Copy</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-val" id="s-total">—</div><div class="stat-lbl">Slots</div></div>
+        <div class="stat"><div class="stat-val" id="s-open">—</div><div class="stat-lbl">Open</div></div>
+        <div class="stat"><div class="stat-val" id="s-booked">—</div><div class="stat-lbl">Booked</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Add a time slot</h2></div>
+        <div class="card-body">
+          <div class="form-row cols-4">
+            <div class="field"><label>Label</label><input id="f-label" type="text" placeholder="e.g. 30-min intro"/></div>
+            <div class="field"><label>Date</label><input id="f-date" type="date"/></div>
+            <div class="field"><label>Start</label><input id="f-start" type="time"/></div>
+            <div class="field"><label>End</label><input id="f-end" type="time"/></div>
+          </div>
+          <div id="add-err" class="err"></div>
+          <button class="btn btn-dark" onclick="addSlot121()" id="add-btn">+ Add slot</button>
+          <button class="bulk-toggle" id="bulk-toggle" onclick="toggleBulk()"><i class="chevron">▶</i> Bulk add</button>
+          <div class="bulk-panel" id="bulk-panel">
+            <p class="bulk-hint">One slot per line: <code>Label, YYYY-MM-DD, HH:MM, HH:MM</code> (label optional)</p>
+            <textarea id="bulk-input" placeholder="Product chat, 2026-04-15, 09:00, 09:30&#10;2026-04-16, 14:00, 14:30"></textarea>
+            <div id="bulk-err" class="err"></div>
+            <div class="bulk-actions">
+              <button class="btn btn-dark" onclick="addBulk()" id="bulk-btn">+ Add all</button>
+              <span id="bulk-status" style="font-size:13px;color:var(--muted)"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switch121Tab('list',this)">List</button>
+        <button class="tab-btn" onclick="switch121Tab('cal',this)">Calendar</button>
+      </div>
+      <div id="tab-121-list">
+        <div class="card"><div id="admin-list"><div class="loading"><span class="spinner"></span> Loading…</div></div></div>
+      </div>
+      <div id="tab-121-cal" style="display:none">
+        <div class="card"><div class="card-body">
+          <div class="cal-nav">
+            <button class="btn btn-ghost btn-sm" onclick="cal121Move(-1)">← Prev</button>
+            <span class="cal-month" id="cal-121-month"></span>
+            <button class="btn btn-ghost btn-sm" onclick="cal121Move(1)">Next →</button>
+          </div>
+          <div class="cal-grid" id="cal-121-grid"></div>
+          <div class="day-detail" id="day-121-detail">
+            <div class="day-detail-title" id="day-121-title"></div>
+            <div id="day-121-slots"></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div id="view-groups" class="view">
+      <div class="card">
+        <div class="card-head"><h2>Create a new group</h2></div>
+        <div class="card-body">
+          <div class="form-row cols-2" style="margin-bottom:10px">
+            <div class="field"><label>Group name</label><input id="g-name" type="text" placeholder="e.g. GTA Availability"/></div>
+            <div class="field" style="align-self:end">
+              <button class="btn btn-dark" style="width:100%;justify-content:center" onclick="createGroup()">+ Create group</button>
+            </div>
+          </div>
+          <div id="g-err" class="err"></div>
+        </div>
+      </div>
+      <div id="groups-list"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const API='https://api.jsonbin.io/v3/b/'+CONFIG.jsonbinBinId;
+const HDRS={'Content-Type':'application/json','X-Master-Key':CONFIG.jsonbinApiKey,'X-Bin-Versioning':'false'};
+let slots=[],groups=[],cal121Date=new Date(),sel121Day=null;
+cal121Date.setDate(1);
+
+// ── SHA-256 password check ───────────────────────────────
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPw(){
+  const val=document.getElementById('pw-input').value;
+  const btn=document.getElementById('pw-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  const hash=await sha256(val);
+  if(hash===CONFIG.adminPasswordHash){
+    sessionStorage.setItem('admin_auth_hash',hash);
+    document.getElementById('pw-screen').style.display='none';
+    document.getElementById('admin-ui').style.display='block';
+    loadData();
+  }else{
+    const e=document.getElementById('pw-err');e.style.display='block';
+    document.getElementById('pw-input').value='';
+    setTimeout(()=>e.style.display='none',2500);
+  }
+  btn.disabled=false;btn.innerHTML='Sign in';
+}
+
+// ── API ──────────────────────────────────────────────────
+async function getData(){const r=await fetch(API+'/latest',{headers:HDRS});if(!r.ok)throw new Error();return(await r.json()).record;}
+async function putData(d){const r=await fetch(API,{method:'PUT',headers:HDRS,body:JSON.stringify(d)});if(!r.ok)throw new Error();}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
+function fmtSlot121(s){return fmtDate(s.date)+'  ·  '+s.start+' – '+s.end;}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+
+async function loadData(){
+  try{
+    const data=await getData();
+    slots=data.slots||[];groups=data.groups||[];
+    if(!data.groups){await putData({...data,groups:[]});}
+    renderAdmin121();renderGroups();
+  }catch(e){
+    document.getElementById('admin-list').innerHTML='<div class="empty" style="color:var(--red)">Could not load data — check config.js.</div>';
+    document.getElementById('groups-list').innerHTML='<div class="empty" style="color:var(--red)">Could not load data.</div>';
+  }
+}
+
+function switchTopTab(name,btn){
+  document.querySelectorAll('.top-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+}
+
+// ── 1-to-1 ───────────────────────────────────────────────
+function switch121Tab(name,btn){
+  document.querySelectorAll('#view-one2one .tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.getElementById('tab-121-list').style.display=name==='list'?'block':'none';
+  document.getElementById('tab-121-cal').style.display=name==='cal'?'block':'none';
+  if(name==='cal')renderCal121();
+}
+
+function renderAdmin121(){
+  const total=slots.length,booked=slots.filter(s=>s.booked).length;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-open').textContent=total-booked;
+  document.getElementById('s-booked').textContent=booked;
+  const ls=document.getElementById('link-section-121');
+  if(total>0){
+    ls.style.display='block';
+    document.getElementById('booking-url').value=location.href.replace('admin.html','book.html').split('?')[0]+'?token='+CONFIG.bookingToken;
+  }else ls.style.display='none';
+  const el=document.getElementById('admin-list');
+  if(!slots.length){el.innerHTML='<div class="empty">No slots yet — add one above.</div>';return;}
+  el.innerHTML=[...slots].sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).map(s=>`
+    <div class="slot-row">
+      <div class="dot ${s.booked?'dot-taken':'dot-open'}"></div>
+      <div class="slot-info">
+        <div class="slot-name">${esc(s.label)}</div>
+        <div class="slot-time">${fmtSlot121(s)}</div>
+        ${s.booked?`<div class="slot-who">Booked by ${esc(s.bookedBy)}${s.bookedEmail?' · '+esc(s.bookedEmail):''}</div>`:''}
+      </div>
+      <span class="badge ${s.booked?'badge-taken':'badge-open'}">${s.booked?'Booked':'Open'}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteSlot121('${s.id}')">Remove</button>
+    </div>`).join('');
+  if(document.getElementById('tab-121-cal').style.display!=='none')renderCal121();
+}
+
+async function addSlot121(){
+  const label=document.getElementById('f-label').value.trim(),date=document.getElementById('f-date').value,
+        start=document.getElementById('f-start').value,end=document.getElementById('f-end').value,
+        errEl=document.getElementById('add-err');
+  errEl.style.display='none';
+  if(!date||!start||!end){showErr(errEl,'Please fill in date, start and end time.');return;}
+  if(start>=end){showErr(errEl,'End time must be after start time.');return;}
+  const btn=document.getElementById('add-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Saving…';
+  try{
+    const fresh=await getData();
+    fresh.slots.push({id:genId(),label:label||'Meeting',date,start,end,booked:false,bookedBy:'',bookedEmail:''});
+    await putData(fresh);slots=fresh.slots;renderAdmin121();
+    ['f-label','f-date','f-start','f-end'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){showErr(errEl,'Could not save.');}
+  btn.disabled=false;btn.innerHTML='+ Add slot';
+}
+
+async function deleteSlot121(id){
+  const fresh=await getData();fresh.slots=fresh.slots.filter(s=>s.id!==id);
+  await putData(fresh);slots=fresh.slots;renderAdmin121();
+  if(sel121Day)showDay121Detail(sel121Day);
+}
+
+function toggleBulk(){document.getElementById('bulk-toggle').classList.toggle('open');document.getElementById('bulk-panel').classList.toggle('open');}
+
+async function addBulk(){
+  const raw=document.getElementById('bulk-input').value.trim(),errEl=document.getElementById('bulk-err'),stat=document.getElementById('bulk-status');
+  errEl.style.display='none';stat.textContent='';
+  if(!raw){showErr(errEl,'Paste some slots in first.');return;}
+  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean),parsed=[],bad=[];
+  lines.forEach((line,i)=>{
+    const p=line.split(',').map(x=>x.trim());let label,date,start,end;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(p[0])){[date,start,end]=p;label='Meeting';}else{[label,date,start,end]=p;}
+    if(!date||!start||!end||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{2}:\d{2}$/.test(start)||!/^\d{2}:\d{2}$/.test(end)||start>=end){bad.push(i+1);return;}
+    parsed.push({id:genId(),label:label||'Meeting',date,start,end,booked:false,bookedBy:'',bookedEmail:''});
+  });
+  if(bad.length){showErr(errEl,`Line${bad.length>1?'s':''} ${bad.join(', ')} couldn't be parsed.`);return;}
+  const btn=document.getElementById('bulk-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Saving…';
+  try{
+    const fresh=await getData();fresh.slots.push(...parsed);await putData(fresh);slots=fresh.slots;renderAdmin121();
+    document.getElementById('bulk-input').value='';stat.textContent=`✓ Added ${parsed.length} slot${parsed.length>1?'s':''}`;
+  }catch(e){showErr(errEl,'Could not save.');}
+  btn.disabled=false;btn.innerHTML='+ Add all';
+}
+
+function renderCal121(){
+  const byDay={};slots.forEach(s=>{if(!byDay[s.date])byDay[s.date]=[];byDay[s.date].push(s);});
+  const y=cal121Date.getFullYear(),m=cal121Date.getMonth();
+  document.getElementById('cal-121-month').textContent=cal121Date.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const off=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate(),today=new Date().toISOString().slice(0,10);
+  const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html=DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<off;i++)html+=`<div class="cal-day other-month"></div>`;
+  for(let d=1;d<=dim;d++){
+    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ds=byDay[iso]||[];
+    const cls='cal-day'+(iso===today?' today':'')+(ds.length?' has-slots':'')+(iso===sel121Day?' selected':'');
+    html+=`<div class="${cls}" onclick="${ds.length?`sel121('${iso}')`:''}""><span>${d}</span><div class="cal-pips">${ds.slice(0,6).map(s=>`<span class="${s.booked?'pip-taken':''}"></span>`).join('')}</div></div>`;
+  }
+  document.getElementById('cal-121-grid').innerHTML=html;
+  if(sel121Day)showDay121Detail(sel121Day);
+}
+function sel121(iso){sel121Day=iso;renderCal121();}
+function showDay121Detail(iso){
+  const ds=slots.filter(s=>s.date===iso).sort((a,b)=>a.start.localeCompare(b.start));
+  document.getElementById('day-121-title').textContent=fmtDate(iso);
+  document.getElementById('day-121-detail').classList.add('open');
+  document.getElementById('day-121-slots').innerHTML=ds.length?ds.map(s=>`
+    <div class="slot-row" style="padding:10px 0">
+      <div class="dot ${s.booked?'dot-taken':'dot-open'}"></div>
+      <div class="slot-info"><div class="slot-name">${esc(s.label)}</div><div class="slot-time">${s.start} – ${s.end}</div>${s.booked?`<div class="slot-who">Booked by ${esc(s.bookedBy)}${s.bookedEmail?' · '+esc(s.bookedEmail):''}</div>`:''}</div>
+      <span class="badge ${s.booked?'badge-taken':'badge-open'}">${s.booked?'Booked':'Open'}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteSlot121('${s.id}')">Remove</button>
+    </div>`).join(''):'<div class="empty" style="padding:1rem 0">No slots on this day.</div>';
+}
+function cal121Move(dir){cal121Date.setMonth(cal121Date.getMonth()+dir);sel121Day=null;document.getElementById('day-121-detail').classList.remove('open');renderCal121();}
+
+// ── Groups ───────────────────────────────────────────────
+function fmtGroupSlot(s){
+  if(s.type==='recurring'){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];return days[s.dow]+', '+s.start+' – '+s.end;}
+  return new Date(s.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+', '+s.start+' – '+s.end;
+}
+function slotSortKey(s){return s.type==='recurring'?'0-'+String(s.dow).padStart(2,'0')+'-'+s.start:'1-'+s.date+'-'+s.start;}
+
+function renderGroups(){
+  const el=document.getElementById('groups-list');
+  if(!groups.length){el.innerHTML='<div class="empty">No groups yet — create one above.</div>';return;}
+  el.innerHTML=groups.map(g=>renderGroupCard(g)).join('');
+}
+
+function renderGroupCard(g){
+  const baseUrl=location.href.replace('admin.html','availability.html').split('?')[0];
+  return `<div class="group-card" id="gc-${g.id}">
+    <div class="group-card-head" onclick="toggleGroup('${g.id}')">
+      <span class="group-expand">▶</span>
+      <span class="group-title">${esc(g.name)}</span>
+      <span class="group-meta">${g.slots.length} slot${g.slots.length!==1?'s':''} · ${g.responses.length} response${g.responses.length!==1?'s':''}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteGroup(event,'${g.id}')">Delete</button>
+    </div>
+    <div class="group-body">
+      <div class="group-section">
+        <div class="group-section-title">Availability link</div>
+        <div class="link-box" style="margin-bottom:0">
+          <input readonly value="${baseUrl}?group=${g.id}" id="gl-${g.id}"/>
+          <button class="btn btn-sm" onclick="copyLink('gl-${g.id}')">Copy</button>
+        </div>
+      </div>
+      <div class="group-section">
+        <div class="group-section-title">Add slots</div>
+        <div class="type-toggle">
+          <button class="type-btn active" id="tt-rec-${g.id}" onclick="setSlotType('${g.id}','recurring')">Recurring weekly</button>
+          <button class="type-btn" id="tt-spec-${g.id}" onclick="setSlotType('${g.id}','specific')">Specific date</button>
+        </div>
+        <div id="form-rec-${g.id}">
+          <div class="form-row cols-4" style="margin-bottom:8px">
+            <div class="field"><label>Label</label><input id="gr-label-${g.id}" type="text" placeholder="Tutorial slot"/></div>
+            <div class="field"><label>Day</label>
+              <select id="gr-dow-${g.id}">
+                <option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option>
+                <option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option>
+              </select>
+            </div>
+            <div class="field"><label>Start</label><input id="gr-start-${g.id}" type="time"/></div>
+            <div class="field"><label>End</label><input id="gr-end-${g.id}" type="time"/></div>
+          </div>
+        </div>
+        <div id="form-spec-${g.id}" style="display:none">
+          <div class="form-row cols-4" style="margin-bottom:8px">
+            <div class="field"><label>Label</label><input id="gs-label-${g.id}" type="text" placeholder="Project meeting"/></div>
+            <div class="field"><label>Date</label><input id="gs-date-${g.id}" type="date"/></div>
+            <div class="field"><label>Start</label><input id="gs-start-${g.id}" type="time"/></div>
+            <div class="field"><label>End</label><input id="gs-end-${g.id}" type="time"/></div>
+          </div>
+        </div>
+        <div id="gs-err-${g.id}" class="err"></div>
+        <button class="btn btn-dark btn-sm" onclick="addGroupSlot('${g.id}')">+ Add slot</button>
+      </div>
+      <div class="group-section">
+        <div class="group-section-title">Slots (${g.slots.length})</div>
+        ${g.slots.length?g.slots.sort((a,b)=>slotSortKey(a).localeCompare(slotSortKey(b))).map(s=>`
+          <div class="slot-row">
+            <div class="dot dot-open"></div>
+            <div class="slot-info"><div class="slot-name">${esc(s.label)}</div><div class="slot-time">${fmtGroupSlot(s)}</div></div>
+            <button class="btn btn-danger btn-sm" onclick="deleteGroupSlot('${g.id}','${s.id}')">Remove</button>
+          </div>`).join(''):'<div class="empty" style="padding:.5rem 0">No slots yet.</div>'}
+      </div>
+      <div class="group-section">
+        <div class="group-section-title">Availability summary (${g.responses.length} response${g.responses.length!==1?'s':''})</div>
+        ${renderSummary(g)}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSummary(g){
+  if(!g.slots.length)return '<div class="empty" style="padding:.5rem 0">Add slots first.</div>';
+  if(!g.responses.length)return '<div class="empty" style="padding:.5rem 0">No responses yet.</div>';
+  const counts={};g.slots.forEach(s=>{counts[s.id]=[];});
+  g.responses.forEach(r=>{r.slots.forEach(sid=>{if(counts[sid])counts[sid].push(r.name);});});
+  return [...g.slots].sort((a,b)=>{
+    const d=counts[b.id].length-counts[a.id].length;
+    return d!==0?d:slotSortKey(a).localeCompare(slotSortKey(b));
+  }).map(s=>`
+    <div class="summary-slot">
+      <div class="summary-slot-head">
+        <span class="summary-slot-label">${esc(s.label)} — ${fmtGroupSlot(s)}</span>
+        <span class="summary-count">${counts[s.id].length}/${g.responses.length}</span>
+      </div>
+      ${counts[s.id].length?`<div class="summary-names">${counts[s.id].map(n=>`<span class="name-chip">${esc(n)}</span>`).join('')}</div>`:'<span class="summary-empty">Nobody available</span>'}
+    </div>`).join('');
+}
+
+function toggleGroup(id){document.getElementById('gc-'+id).classList.toggle('open');}
+function setSlotType(gid,type){
+  document.getElementById('tt-rec-'+gid).classList.toggle('active',type==='recurring');
+  document.getElementById('tt-spec-'+gid).classList.toggle('active',type==='specific');
+  document.getElementById('form-rec-'+gid).style.display=type==='recurring'?'block':'none';
+  document.getElementById('form-spec-'+gid).style.display=type==='specific'?'block':'none';
+}
+
+async function createGroup(){
+  const name=document.getElementById('g-name').value.trim(),errEl=document.getElementById('g-err');errEl.style.display='none';
+  if(!name){showErr(errEl,'Please enter a group name.');return;}
+  try{
+    const fresh=await getData();if(!fresh.groups)fresh.groups=[];
+    fresh.groups.push({id:genId(),name,slots:[],responses:[]});
+    await putData(fresh);groups=fresh.groups;document.getElementById('g-name').value='';renderGroups();
+  }catch(e){showErr(errEl,'Could not save.');}
+}
+
+async function deleteGroup(e,gid){
+  e.stopPropagation();if(!confirm('Delete this group and all its responses?'))return;
+  const fresh=await getData();fresh.groups=fresh.groups.filter(g=>g.id!==gid);
+  await putData(fresh);groups=fresh.groups;renderGroups();
+}
+
+async function addGroupSlot(gid){
+  const errEl=document.getElementById('gs-err-'+gid);errEl.style.display='none';
+  const isRec=document.getElementById('tt-rec-'+gid).classList.contains('active');
+  let slot;
+  if(isRec){
+    const label=document.getElementById('gr-label-'+gid).value.trim();
+    const dow=parseInt(document.getElementById('gr-dow-'+gid).value);
+    const start=document.getElementById('gr-start-'+gid).value,end=document.getElementById('gr-end-'+gid).value;
+    if(!start||!end){showErr(errEl,'Please fill in start and end time.');return;}
+    if(start>=end){showErr(errEl,'End time must be after start time.');return;}
+    slot={id:genId(),type:'recurring',label:label||'Slot',dow,start,end};
+  }else{
+    const label=document.getElementById('gs-label-'+gid).value.trim();
+    const date=document.getElementById('gs-date-'+gid).value;
+    const start=document.getElementById('gs-start-'+gid).value,end=document.getElementById('gs-end-'+gid).value;
+    if(!date||!start||!end){showErr(errEl,'Please fill in date, start and end time.');return;}
+    if(start>=end){showErr(errEl,'End time must be after start time.');return;}
+    slot={id:genId(),type:'specific',label:label||'Slot',date,start,end};
+  }
+  try{
+    const fresh=await getData();const g=fresh.groups.find(x=>x.id===gid);
+    g.slots.push(slot);await putData(fresh);groups=fresh.groups;renderGroups();
+    setTimeout(()=>document.getElementById('gc-'+gid)?.classList.add('open'),50);
+  }catch(e){showErr(errEl,'Could not save.');}
+}
+
+async function deleteGroupSlot(gid,sid){
+  const fresh=await getData();const g=fresh.groups.find(x=>x.id===gid);
+  g.slots=g.slots.filter(s=>s.id!==sid);
+  g.responses=g.responses.map(r=>({...r,slots:r.slots.filter(s=>s!==sid)}));
+  await putData(fresh);groups=fresh.groups;renderGroups();
+  setTimeout(()=>document.getElementById('gc-'+gid)?.classList.add('open'),50);
+}
+
+function copyLink(inputId){
+  navigator.clipboard.writeText(document.getElementById(inputId).value).then(()=>{
+    const btn=document.getElementById(inputId).parentElement.querySelector('.btn');
+    const orig=btn.textContent;btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent=orig,1600);
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────
+async function init(){
+  // verify stored session hash still matches config
+  const stored=sessionStorage.getItem('admin_auth_hash');
+  if(stored&&stored===CONFIG.adminPasswordHash){
+    document.getElementById('pw-screen').style.display='none';
+    document.getElementById('admin-ui').style.display='block';
+    loadData();
+  }else{
+    sessionStorage.removeItem('admin_auth_hash');
+    setTimeout(()=>document.getElementById('pw-input').focus(),100);
+  }
+}
+init();
+</script>
+</body>
+</html>

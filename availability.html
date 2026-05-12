@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Availability</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ee;--surface:#fff;--border:#e2dfd8;--border-md:#c9c5bc;
+  --text:#1a1917;--muted:#7a776f;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --blue:#1a4f8a;--blue-bg:#e8f0fb;
+  --red:#9b2335;--red-bg:#fde8ec;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
+.container{max-width:620px;margin:0 auto}
+header{margin-bottom:2rem}
+header h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin-bottom:4px}
+header p{font-size:14px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden}
+.card-head{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-head h2{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.card-body{padding:1.2rem}
+.field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+.field input{width:100%;height:42px;padding:0 12px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:15px;color:var(--text);background:var(--bg);outline:none;transition:border-color .12s}
+.field input:focus{border-color:var(--border-md);background:#fff}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:38px;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text);transition:background .12s,transform .1s;white-space:nowrap}
+.btn:hover{background:var(--bg)}.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-dark:hover{opacity:.88;background:var(--text)}
+.btn-block{width:100%;justify-content:center;height:44px;font-size:15px}
+.btn-sm{height:30px;padding:0 12px;font-size:12px}
+.err{font-size:13px;color:var(--red);margin-top:6px;display:none}
+.loading{display:flex;align-items:center;gap:10px;padding:1.5rem 1.2rem;font-size:14px;color:var(--muted)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--text);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:2.5rem 1rem;font-size:14px;color:var(--muted)}
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding:1.2rem}
+.slot-tile{border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .12s,background .12s;user-select:none}
+.slot-tile:hover{border-color:var(--border-md);background:#faf9f6}
+.slot-tile.selected{border-color:var(--green);background:var(--green-bg)}
+.slot-tile .tile-label{font-size:14px;font-weight:500;margin-bottom:3px}
+.slot-tile .tile-time{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.slot-tile.selected .tile-time{color:var(--green)}
+.day-header{padding:10px 1.2rem 4px;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-top:1px solid var(--border)}
+.day-header:first-child{border-top:none}
+.select-bar{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.2rem;border-bottom:1px solid var(--border);background:var(--bg)}
+.select-bar span{font-size:13px;color:var(--muted)}
+.select-actions{display:flex;gap:8px}
+.returning-notice{font-size:13px;color:var(--blue);background:var(--blue-bg);border:1px solid #b8d0f0;border-radius:8px;padding:10px 14px;margin-bottom:1rem;display:none}
+.success{text-align:center;padding:3rem 1rem}
+.success-mark{font-size:44px;margin-bottom:1rem;line-height:1}
+.success h2{font-size:22px;font-weight:300;margin-bottom:8px}
+.success p{font-size:14px;color:var(--muted);line-height:1.6}
+#not-found{display:none;text-align:center;padding:4rem 1rem}
+#not-found h2{font-size:22px;font-weight:300;margin-bottom:8px;color:var(--muted)}
+#step-name,#step-slots,#step-success{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="not-found"><h2>Group not found</h2><p style="font-size:14px;color:var(--muted)">This link may be invalid or the group may have been removed.</p></div>
+  <div id="main-screen" style="display:none">
+    <header>
+      <h1 id="page-group-name">Availability</h1>
+      <p>Select every time slot that works for you, then submit.</p>
+    </header>
+
+    <div id="step-name">
+      <div class="card">
+        <div class="card-head"><h2>Who are you?</h2></div>
+        <div class="card-body">
+          <div class="field" style="margin-bottom:1rem">
+            <label>Your name</label>
+            <input id="name-input" type="text" placeholder="Jane Smith" onkeydown="if(event.key==='Enter')goToSlots()"/>
+          </div>
+          <div id="name-err" class="err"></div>
+          <div id="returning-notice" class="returning-notice"></div>
+          <button class="btn btn-dark btn-block" style="margin-top:.8rem" onclick="goToSlots()">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="step-slots">
+      <div class="returning-notice" id="edit-notice"></div>
+      <div class="card" style="margin-bottom:.8rem">
+        <div class="select-bar">
+          <span id="selected-count">0 slots selected</span>
+          <div class="select-actions">
+            <button class="btn btn-sm" onclick="selectAll()">Select all</button>
+            <button class="btn btn-sm" onclick="selectNone()">Clear</button>
+          </div>
+        </div>
+        <div id="slot-grid-container"><div class="loading"><span class="spinner"></span> Loading slots…</div></div>
+      </div>
+      <div id="submit-err" class="err" style="margin-bottom:.8rem"></div>
+      <button class="btn btn-dark btn-block" id="submit-btn" onclick="submitAvailability()">Submit availability</button>
+      <button class="btn btn-block" style="margin-top:8px" onclick="backToName()">← Change name</button>
+    </div>
+
+    <div id="step-success">
+      <div class="success">
+        <div class="success-mark">✓</div>
+        <h2>Thanks!</h2>
+        <p id="success-msg"></p>
+        <button class="btn btn-dark" style="margin-top:1.5rem" onclick="editAgain()">Update my availability</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script>
+const API='https://api.jsonbin.io/v3/b/'+CONFIG.jsonbinBinId;
+const HDRS={'Content-Type':'application/json','X-Master-Key':CONFIG.jsonbinApiKey,'X-Bin-Versioning':'false'};
+let groupId=null,group=null,selectedSlots=new Set(),userName='';
+
+async function getData(){const r=await fetch(API+'/latest',{headers:HDRS});if(!r.ok)throw new Error();return(await r.json()).record;}
+async function putData(d){const r=await fetch(API,{method:'PUT',headers:HDRS,body:JSON.stringify(d)});if(!r.ok)throw new Error();}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+function show(id){document.getElementById(id).style.display='block';}
+function hide(id){document.getElementById(id).style.display='none';}
+
+function fmtGroupSlot(s){
+  if(s.type==='recurring'){
+    const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    return days[s.dow]+', '+s.start+' – '+s.end;
+  }
+  return new Date(s.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+', '+s.start+' – '+s.end;
+}
+function slotSortKey(s){
+  return s.type==='recurring'?'0-'+String(s.dow).padStart(2,'0')+'-'+s.start:'1-'+s.date+'-'+s.start;
+}
+
+function goToSlots(){
+  const name=document.getElementById('name-input').value.trim();
+  const errEl=document.getElementById('name-err');errEl.style.display='none';
+  if(!name){showErr(errEl,'Please enter your name.');return;}
+  userName=name;
+  const existing=group.responses.find(r=>r.name.toLowerCase()===name.toLowerCase());
+  const editNotice=document.getElementById('edit-notice');
+  if(existing){
+    selectedSlots=new Set(existing.slots);
+    editNotice.textContent=`Updating availability for ${name}. Your previous selections are pre-filled.`;
+    editNotice.style.display='block';
+  }else{selectedSlots=new Set();editNotice.style.display='none';}
+  hide('step-name');show('step-slots');
+  renderSlots();
+}
+
+function backToName(){hide('step-slots');show('step-name');}
+
+function renderSlots(){
+  const container=document.getElementById('slot-grid-container');
+  const slots=[...group.slots].sort((a,b)=>slotSortKey(a).localeCompare(slotSortKey(b)));
+  if(!slots.length){container.innerHTML='<div class="empty">No slots have been added yet.</div>';return;}
+
+  const recurringSlots=slots.filter(s=>s.type==='recurring');
+  const specificSlots=slots.filter(s=>s.type==='specific');
+  const byDate={};
+  specificSlots.forEach(s=>{if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);});
+
+  let html='';
+  if(recurringSlots.length){
+    const byDow={};
+    recurringSlots.forEach(s=>{if(!byDow[s.dow])byDow[s.dow]=[];byDow[s.dow].push(s);});
+    const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    Object.keys(byDow).sort().forEach(dow=>{
+      html+=`<div class="day-header">${days[dow]}</div><div class="slot-grid">`;
+      byDow[dow].sort((a,b)=>a.start.localeCompare(b.start)).forEach(s=>{
+        html+=`<div class="slot-tile${selectedSlots.has(s.id)?' selected':''}" onclick="toggleSlot('${s.id}')" data-id="${s.id}"><div class="tile-label">${esc(s.label)}</div><div class="tile-time">${s.start} – ${s.end}</div></div>`;
+      });
+      html+='</div>';
+    });
+  }
+  if(specificSlots.length){
+    if(recurringSlots.length)html+=`<div class="day-header" style="margin-top:8px">Specific dates</div>`;
+    Object.keys(byDate).sort().forEach(date=>{
+      const label=new Date(date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      html+=`<div class="day-header">${label}</div><div class="slot-grid">`;
+      byDate[date].sort((a,b)=>a.start.localeCompare(b.start)).forEach(s=>{
+        html+=`<div class="slot-tile${selectedSlots.has(s.id)?' selected':''}" onclick="toggleSlot('${s.id}')" data-id="${s.id}"><div class="tile-label">${esc(s.label)}</div><div class="tile-time">${s.start} – ${s.end}</div></div>`;
+      });
+      html+='</div>';
+    });
+  }
+  container.innerHTML=html;
+  updateCount();
+}
+
+function toggleSlot(id){
+  if(selectedSlots.has(id))selectedSlots.delete(id);else selectedSlots.add(id);
+  document.querySelector(`.slot-tile[data-id="${id}"]`)?.classList.toggle('selected',selectedSlots.has(id));
+  updateCount();
+}
+function selectAll(){group.slots.forEach(s=>selectedSlots.add(s.id));renderSlots();}
+function selectNone(){selectedSlots.clear();renderSlots();}
+function updateCount(){const n=selectedSlots.size;document.getElementById('selected-count').textContent=n===0?'No slots selected':`${n} slot${n>1?'s':''} selected`;}
+
+async function submitAvailability(){
+  const errEl=document.getElementById('submit-err');errEl.style.display='none';
+  if(selectedSlots.size===0){showErr(errEl,'Please select at least one slot.');return;}
+  const btn=document.getElementById('submit-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Saving…';
+  try{
+    const fresh=await getData();
+    const g=fresh.groups.find(x=>x.id===groupId);
+    if(!g)throw new Error();
+    const idx=g.responses.findIndex(r=>r.name.toLowerCase()===userName.toLowerCase());
+    const response={name:userName,slots:Array.from(selectedSlots),submittedAt:new Date().toISOString()};
+    if(idx>=0)g.responses[idx]=response;else g.responses.push(response);
+    await putData(fresh);
+    hide('step-slots');show('step-success');
+    document.getElementById('success-msg').textContent=`Saved ${selectedSlots.size} slot${selectedSlots.size>1?'s':''} for ${userName}.`;
+  }catch(e){showErr(errEl,'Could not save — please try again.');}
+  btn.disabled=false;btn.innerHTML='Submit availability';
+}
+
+function editAgain(){hide('step-success');show('step-name');document.getElementById('name-input').value=userName;}
+
+async function init(){
+  groupId=new URLSearchParams(location.search).get('group');
+  if(!groupId){show('not-found');return;}
+  try{
+    const data=await getData();
+    group=(data.groups||[]).find(g=>g.id===groupId);
+    if(!group){show('not-found');return;}
+    document.getElementById('page-group-name').textContent=group.name;
+    document.title=group.name+' — Availability';
+    show('main-screen');show('step-name');
+    setTimeout(()=>document.getElementById('name-input').focus(),100);
+  }catch(e){show('not-found');}
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Scheduler Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ee;--surface:#fff;--border:#e2dfd8;--border-md:#c9c5bc;
+  --text:#1a1917;--muted:#7a776f;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#9b2335;--red-bg:#fde8ec;
+  --amber:#7a5c00;--amber-bg:#fff8d6;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
+.container{max-width:640px;margin:0 auto}
+header{margin-bottom:2rem}
+header h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin-bottom:4px}
+header p{font-size:14px;color:var(--muted);line-height:1.6}
+.notice{border-radius:10px;padding:1rem 1.2rem;font-size:13px;line-height:1.7;margin-bottom:1.5rem}
+.notice.warn{background:var(--amber-bg);border:1px solid #e8d070;color:var(--amber)}
+.notice.info{background:#e8f0fb;border:1px solid #b8d0f0;color:#1a4f8a}
+.notice strong{font-weight:600}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem;overflow:hidden}
+.card-head{padding:.9rem 1.2rem;border-bottom:1px solid var(--border)}
+.card-head h2{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.card-body{padding:1.2rem}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--text);color:#fff;font-size:12px;font-weight:600;margin-right:8px;flex-shrink:0}
+.step-label{display:flex;align-items:center;font-size:14px;font-weight:500;margin-bottom:10px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+.field input{width:100%;height:38px;padding:0 10px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .12s}
+.field input:focus{border-color:var(--border-md);background:#fff}
+.field input[type=password]{font-family:var(--mono);letter-spacing:.12em}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 16px;height:38px;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text);transition:background .12s,transform .1s;white-space:nowrap}
+.btn:hover{background:var(--bg)}.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-dark:hover{opacity:.88;background:var(--text)}
+.btn-block{width:100%;justify-content:center;height:44px;font-size:15px}
+.err{font-size:13px;color:var(--red);margin-top:6px;display:none}
+.output-box{display:none;margin-top:1.5rem}
+.output-box h3{font-size:14px;font-weight:500;margin-bottom:10px}
+.code-block{background:#1a1917;color:#e8e4dc;font-family:var(--mono);font-size:12px;line-height:1.7;padding:1.2rem;border-radius:10px;overflow-x:auto;white-space:pre;margin-bottom:10px}
+.copy-row{display:flex;gap:10px;align-items:center}
+.success-msg{font-size:13px;color:var(--green);display:none}
+.divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Scheduler setup</h1>
+    <p>Run this page locally to generate your <code style="font-family:var(--mono);background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px">config.js</code> file. You don't need to deploy this page — it just helps you build your config safely.</p>
+  </header>
+
+  <div class="notice warn">
+    <strong>Run this locally, not on GitHub Pages.</strong> Open this file directly in your browser from your computer (drag it into a browser window, or double-click it). This page never sends your secrets anywhere — all processing happens in your browser.
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Your credentials</h2></div>
+    <div class="card-body">
+
+      <div class="step-label"><span class="step-num">1</span> JSONBin credentials</div>
+      <div class="field">
+        <label>JSONBin Master Key</label>
+        <input id="api-key" type="password" placeholder="$2a$10$…"/>
+        <div class="hint">From jsonbin.io → API Keys → Master Key</div>
+      </div>
+      <div class="field">
+        <label>JSONBin Bin ID</label>
+        <input id="bin-id" type="text" placeholder="64a3f2…"/>
+        <div class="hint">The long ID in the URL when viewing your bin</div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="step-label"><span class="step-num">2</span> Admin password</div>
+      <div class="field">
+        <label>Password</label>
+        <input id="admin-pw" type="password" placeholder="Choose a strong password"/>
+        <div class="hint">This will be hashed with SHA-256 — the plaintext is never stored</div>
+      </div>
+
+      <hr class="divider"/>
+
+      <div class="step-label"><span class="step-num">3</span> Booking token</div>
+      <div class="field">
+        <label>Booking token</label>
+        <input id="book-token" type="text" placeholder="Click generate →" readonly style="font-family:var(--mono);font-size:13px"/>
+        <div class="hint">This is the secret token in your 1-to-1 booking link — keep it private</div>
+      </div>
+      <button class="btn btn-dark btn-sm" onclick="generateToken()" style="margin-bottom:1.2rem">Generate token</button>
+
+      <hr class="divider"/>
+
+      <div id="gen-err" class="err"></div>
+      <button class="btn btn-dark btn-block" onclick="generateConfig()">Generate config.js</button>
+    </div>
+  </div>
+
+  <div class="output-box" id="output-box">
+    <div class="card">
+      <div class="card-head"><h2>Your config.js</h2></div>
+      <div class="card-body">
+        <div class="notice info" style="margin-bottom:1rem">
+          <strong>Copy the content below</strong> and save it as <code style="font-family:var(--mono)">config.js</code> in your repo, replacing the existing file. Then push to GitHub.
+        </div>
+        <div class="code-block" id="config-output"></div>
+        <div class="copy-row">
+          <button class="btn btn-dark" onclick="copyConfig()">Copy to clipboard</button>
+          <span class="success-msg" id="copy-ok">✓ Copied!</span>
+        </div>
+
+        <hr class="divider"/>
+
+        <div style="font-size:14px;font-weight:500;margin-bottom:8px">Your booking link will be:</div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--border)" id="booking-link-preview"></div>
+        <div class="hint" style="margin-top:6px">Share this link for 1-to-1 bookings. Group links are generated in admin.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function obfuscate(str) {
+  // Split into thirds and base64-encode each piece separately
+  const third = Math.ceil(str.length / 3);
+  const parts = [
+    str.slice(0, third),
+    str.slice(third, third * 2),
+    str.slice(third * 2),
+  ];
+  return parts.map(p => btoa(p));
+}
+
+function generateToken() {
+  const arr = new Uint8Array(18);
+  crypto.getRandomValues(arr);
+  document.getElementById('book-token').value = Array.from(arr).map(b => b.toString(36)).join('').slice(0, 24);
+}
+
+async function generateConfig() {
+  const apiKey  = document.getElementById('api-key').value.trim();
+  const binId   = document.getElementById('bin-id').value.trim();
+  const pw      = document.getElementById('admin-pw').value;
+  const token   = document.getElementById('book-token').value.trim();
+  const errEl   = document.getElementById('gen-err');
+  errEl.style.display = 'none';
+
+  if (!apiKey || !binId || !pw || !token) {
+    errEl.textContent = 'Please fill in all fields and generate a booking token.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const pwHash   = await sha256(pw);
+  const keyParts = obfuscate(apiKey);
+  const idParts  = obfuscate(binId);
+
+  const config = `// Meeting Scheduler — config.js
+// Generated by setup.html. Do not edit manually.
+// API key and bin ID are obfuscated; password is SHA-256 hashed.
+
+const CONFIG = {
+  // Obfuscated JSONBin Master Key (3 parts, base64)
+  _kp: [
+    '${keyParts[0]}',
+    '${keyParts[1]}',
+    '${keyParts[2]}'
+  ],
+
+  // Obfuscated JSONBin Bin ID (3 parts, base64)
+  _bp: [
+    '${idParts[0]}',
+    '${idParts[1]}',
+    '${idParts[2]}'
+  ],
+
+  // SHA-256 hash of admin password
+  adminPasswordHash: '${pwHash}',
+
+  // Secret token for the 1-to-1 booking page
+  bookingToken: '${token}',
+
+  // Reassemble at runtime (not stored as plaintext)
+  get jsonbinApiKey() { return this._kp.map(p => atob(p)).join(''); },
+  get jsonbinBinId()  { return this._bp.map(p => atob(p)).join(''); },
+};`;
+
+  document.getElementById('config-output').textContent = config;
+  document.getElementById('output-box').style.display = 'block';
+  document.getElementById('booking-link-preview').textContent =
+    'https://YOURUSERNAME.github.io/meeting-scheduler/book.html?token=' + token;
+  document.getElementById('output-box').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyConfig() {
+  const text = document.getElementById('config-output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const msg = document.getElementById('copy-ok');
+    msg.style.display = 'inline';
+    setTimeout(() => msg.style.display = 'none', 2000);
+  });
+}
+</script>
+</body>
+</html>
