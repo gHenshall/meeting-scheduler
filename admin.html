@@ -311,7 +311,7 @@ function renderAdmin121(){
   const ls=document.getElementById('link-section-121');
   if(total>0){
     ls.style.display='block';
-    document.getElementById('booking-url').value=location.href.replace('admin.html','book.html').split('?')[0]+'?token='+CONFIG.bookingToken;
+    document.getElementById('booking-url').value=location.origin+location.pathname.replace(/\/admin(\.html)?$/,'/book.html')+'?token='+CONFIG.bookingToken;
   }else ls.style.display='none';
   const el=document.getElementById('admin-list');
   if(!slots.length){el.innerHTML='<div class="empty">No slots yet — add one above.</div>';return;}
