@@ -420,7 +420,7 @@ function renderGroups(){
 }
 
 function renderGroupCard(g){
-  const baseUrl=location.href.replace('admin.html','availability.html').split('?')[0];
+  const baseUrl=location.origin+location.pathname.replace(/\/admin(\.html)?$/,'/availability.html');
   return `<div class="group-card" id="gc-${g.id}">
     <div class="group-card-head" onclick="toggleGroup('${g.id}')">
       <span class="group-expand">▶</span>
